@@ -14,9 +14,10 @@
       }
       #about .agent,
       .agent-section .agent {
-        background-position: 50% 8% !important;
+        background-position: center top !important;
         background-repeat: no-repeat !important;
-        background-size: cover !important;
+        background-size: contain !important;
+        background-color: #e9e3d8 !important;
       }
       .hero {
         filter: none !important;
@@ -37,9 +38,10 @@
   function fixPortraitCrop() {
     const portrait = document.querySelector('#about .agent, .agent-section .agent, .agent');
     if (!portrait) return;
-    portrait.style.setProperty('background-position', '50% 8%', 'important');
+    portrait.style.setProperty('background-position', 'center top', 'important');
     portrait.style.setProperty('background-repeat', 'no-repeat', 'important');
-    portrait.style.setProperty('background-size', 'cover', 'important');
+    portrait.style.setProperty('background-size', 'contain', 'important');
+    portrait.style.setProperty('background-color', '#e9e3d8', 'important');
   }
 
   function extractUrl(backgroundImage) {
@@ -65,7 +67,6 @@
     if (!hero) return;
 
     const candidateSources = new Set();
-
     document.querySelectorAll('img').forEach((img) => {
       if (img.closest('.agent-section, #about, header, nav, footer')) return;
       const src = img.currentSrc || img.src;
@@ -79,13 +80,13 @@
     });
 
     const currentHeroSrc = extractUrl(getComputedStyle(hero).backgroundImage);
-    const infos = (await Promise.all([...candidateSources].slice(0, 100).map(imageInfo))).filter(Boolean);
-    const landscapes = infos.filter((i) => i.width >= 1200 && i.height >= 650 && i.width / i.height >= 1.35);
+    const infos = (await Promise.all([...candidateSources].slice(0, 120).map(imageInfo))).filter(Boolean);
+    const landscapes = infos.filter((i) => i.width >= 1400 && i.height >= 700 && i.width / i.height >= 1.35);
     landscapes.sort((a, b) => (b.width * b.height) - (a.width * a.height));
     const best = landscapes[0];
 
     if (best && best.src && best.src !== currentHeroSrc) {
-      hero.style.setProperty('background-image', `linear-gradient(rgba(0,0,0,.12), rgba(0,0,0,.34)), url("${best.src.replace(/"/g, '\\"')}")`, 'important');
+      hero.style.setProperty('background-image', `linear-gradient(rgba(0,0,0,.10), rgba(0,0,0,.28)), url("${best.src.replace(/"/g, '\\"')}")`, 'important');
       hero.style.setProperty('background-size', 'cover', 'important');
       hero.style.setProperty('background-position', 'center center', 'important');
       hero.dataset.sharpHeroApplied = '1';
