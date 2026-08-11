@@ -10,6 +10,14 @@
     'Playa Saladita':'https://www.tronconesbeachproperty.com/assets/images/1mainphoto20vms-4-1696x1199.jpg',
     'Commercial':'https://www.tronconesbeachproperty.com/assets/images/plh11-1359x754.jpg'
   };
+  Object.assign(COLLECTION_IMAGES,{
+    'Casas':COLLECTION_IMAGES['Homes'],
+    'Condominios':COLLECTION_IMAGES['Condos'],
+    'Terrenos frente al mar':COLLECTION_IMAGES['Beachfront Lots'],
+    'Lotes y terrenos':COLLECTION_IMAGES['Lots & Land'],
+    'El Rancho / Palo Alto':COLLECTION_IMAGES['Ranch / Palo Alto'],
+    'Comercial':COLLECTION_IMAGES['Commercial']
+  });
   function styleCollections(){
     if(!document.getElementById('dt-collection-photo-style')){
       const style=document.createElement('style');
