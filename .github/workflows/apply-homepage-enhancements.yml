@@ -30,11 +30,37 @@ jobs:
           production_dir = Path('troncones_property_production_site 3')
           stable_dir = Path('site')
 
+          js_path = Path('homepage-enhancements.js')
+          js = js_path.read_text(encoding='utf-8')
+          old_sharpen = "function sharpenHero(){const hero=document.querySelector('section.hero,.hero');if(!hero)return;hero.style.setProperty('filter','saturate(1.04) contrast(1.16) brightness(1.05)','important');hero.style.setProperty('-webkit-filter','saturate(1.04) contrast(1.16) brightness(1.05)','important');hero.style.setProperty('background-size','cover','important');hero.style.setProperty('background-position','center center','important')}"
+          new_sharpen = """function sharpenHero(){
+    const hero=document.querySelector('section.hero,.hero');if(!hero)return;
+    if(hero.querySelector('.dt-hero-sharp-image'))return;
+    const bg=getComputedStyle(hero).backgroundImage||hero.style.backgroundImage||'';
+    const match=bg.match(/url\\([\"']?(.*?)[\"']?\\)/);
+    if(!match||!match[1])return;
+    const img=document.createElement('img');
+    img.className='dt-hero-sharp-image';
+    img.src=match[1];
+    img.alt='Troncones Pacific coast';
+    img.decoding='sync';
+    img.fetchPriority='high';
+    Object.assign(img.style,{position:'absolute',inset:'0',width:'100%',height:'100%',objectFit:'cover',objectPosition:'center center',zIndex:'0',display:'block',filter:'saturate(1.03) contrast(1.08) brightness(1.03)'});
+    hero.style.setProperty('position','relative','important');
+    hero.style.setProperty('background-image','none','important');
+    hero.style.setProperty('filter','none','important');
+    hero.style.setProperty('-webkit-filter','none','important');
+    hero.insertBefore(img,hero.firstChild);
+    [...hero.children].forEach(child=>{if(child!==img){child.style.position=child.style.position||'relative';child.style.zIndex=child.style.zIndex||'1'}});
+  }"""
+          if old_sharpen in js:
+              js = js.replace(old_sharpen, new_sharpen)
+          js_path.write_text(js, encoding='utf-8')
+
           shutil.copyfile('homepage-enhancements.js', production_dir / 'homepage-enhancements.js')
 
           # Listing cards are rendered from a JS template string. The click
-          # handler must interpolate the actual listing code while rendering;
-          # using openDetail(p.code) later fails because p is no longer in scope.
+          # handler must interpolate the actual listing code while rendering.
           old_clicks = [
               "onclick=\"location.href='listings/${p.code.toLowerCase()}.html'\"",
               "onclick=\"openDetail(p.code)\""
@@ -59,13 +85,10 @@ jobs:
                   html += tag
               path.write_text(html, encoding='utf-8')
 
-          # Keep a stable complete mirror, including the photo-based homepage
-          # collection cards supplied by homepage-enhancements.js.
           if stable_dir.exists():
               shutil.rmtree(stable_dir)
           shutil.copytree(production_dir, stable_dir)
 
-          # Publish listing pages and assets at repository root for Vercel.
           for dirname in ['listings', 'assets']:
               src = production_dir / dirname
               dst = Path(dirname)
