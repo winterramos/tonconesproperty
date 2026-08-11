@@ -1,15 +1,8 @@
 (function () {
   'use strict';
 
-  // Discover Troncones homepage enhancements: realtor placement + photo category cards.
   const CATEGORY_NAMES = [
-    'Homes',
-    'Condos',
-    'Lots',
-    'Beachfront Lots',
-    'Beach Lots',
-    'Beachfront',
-    'All Properties'
+    'Homes', 'Condos', 'Lots', 'Beachfront Lots', 'Beach Lots', 'Beachfront', 'All Properties'
   ];
 
   function normalize(text) {
@@ -47,19 +40,20 @@
         transform: translateY(-3px);
         box-shadow: 0 12px 30px rgba(0,0,0,.18) !important;
       }
-      .dt-category-photo-card, .dt-category-photo-card * {
-        color: #fff !important;
-      }
-      .dt-category-photo-card h2,
-      .dt-category-photo-card h3,
-      .dt-category-photo-card h4,
-      .dt-category-photo-card strong,
+      .dt-category-photo-card, .dt-category-photo-card * { color: #fff !important; }
+      .dt-category-photo-card h2, .dt-category-photo-card h3,
+      .dt-category-photo-card h4, .dt-category-photo-card strong,
       .dt-category-photo-card b {
         font-size: clamp(1.2rem, 2.1vw, 1.75rem) !important;
         line-height: 1.08 !important;
       }
-      .dt-realtor-promoted {
-        scroll-margin-top: 90px;
+      .dt-realtor-promoted { scroll-margin-top: 90px; }
+      .dt-realtor-promoted img {
+        object-position: 50% 12% !important;
+      }
+      .dt-realtor-promoted img[style*="object-fit"],
+      .dt-realtor-promoted img {
+        object-fit: cover !important;
       }
       @media (max-width: 720px) {
         .dt-category-photo-card {
@@ -67,6 +61,7 @@
           border-radius: 14px !important;
           padding: 16px !important;
         }
+        .dt-realtor-promoted img { object-position: 50% 6% !important; }
       }
     `;
     document.head.appendChild(style);
@@ -98,11 +93,8 @@
 
   function candidateCategoryCards() {
     const selectors = [
-      '#areaGrid > *',
-      '.areas > *',
-      '.area-grid > *',
-      '[class*="collection"] > *',
-      '[class*="categor"] > *'
+      '#areaGrid > *', '.areas > *', '.area-grid > *',
+      '[class*="collection"] > *', '[class*="categor"] > *'
     ];
     const found = [];
     const seen = new Set();
@@ -112,20 +104,17 @@
         const text = normalize(el.textContent);
         const matches = CATEGORY_NAMES.some((name) => text === normalize(name) || text.startsWith(normalize(name) + ' ') || text.includes(normalize(name)));
         if (matches && el.getBoundingClientRect().width > 80) {
-          seen.add(el);
-          found.push(el);
+          seen.add(el); found.push(el);
         }
       });
     });
-
     if (found.length < 3) {
       document.querySelectorAll('a,button,article,div').forEach((el) => {
         if (seen.has(el) || el.children.length > 8) return;
         const text = normalize(el.textContent);
         const matches = CATEGORY_NAMES.some((name) => text === normalize(name) || text.startsWith(normalize(name) + ' '));
         if (matches && el.getBoundingClientRect().width > 120 && el.getBoundingClientRect().height > 45) {
-          seen.add(el);
-          found.push(el);
+          seen.add(el); found.push(el);
         }
       });
     }
@@ -136,54 +125,61 @@
     const cards = candidateCategoryCards();
     const images = collectPropertyImages();
     if (!cards.length || !images.length) return false;
-
     cards.forEach((card, index) => {
-      if (card.classList.contains('dt-category-photo-card')) return;
-      const image = images[(index + 2) % images.length];
-      card.classList.add('dt-category-photo-card');
-      card.style.backgroundImage = `url("${image.replace(/"/g, '%22')}")`;
+      if (!card.classList.contains('dt-category-photo-card')) {
+        const image = images[(index + 2) % images.length];
+        card.classList.add('dt-category-photo-card');
+        card.style.backgroundImage = `url("${image.replace(/"/g, '%22')}")`;
+      }
     });
     return true;
   }
 
   function findRealtorSection() {
-    const textNodes = Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,p,strong,div,span'));
-    const heading = textNodes.find((el) => {
+    const nodes = Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,p,strong,div,span'));
+    const heading = nodes.find((el) => {
       const t = normalize(el.textContent);
       return t === 'know your realtor' || t.includes('know your realtor') || t === 'meet your realtor';
     });
     if (!heading) return null;
-
-    return heading.closest('section') ||
-      heading.closest('[class*="realtor"]') ||
-      heading.closest('[class*="agent"]') ||
-      heading.closest('article') ||
-      heading.parentElement;
+    return heading.closest('section') || heading.closest('[class*="realtor"]') ||
+      heading.closest('[class*="agent"]') || heading.closest('article') || heading.parentElement;
   }
 
-  function findStatsAnchor() {
-    const direct = document.querySelector('#totalstat, #totalStat, [id*="totalstat" i]');
-    if (direct) {
-      return direct.closest('.stats, .stat-row, [class*="stats"], section') || direct.parentElement || direct;
-    }
-
-    const candidates = Array.from(document.querySelectorAll('.stats, [class*="stats"], [class*="stat"]'));
-    const likely = candidates.find((el) => /propert|listing|available|for sale/i.test(el.textContent || ''));
-    if (likely) return likely;
-
-    const textCandidates = Array.from(document.querySelectorAll('div,p,span,strong'));
-    const propertyCount = textCandidates.find((el) => /\b\d+\s+(properties|listings)\b/i.test((el.textContent || '').trim()));
-    return propertyCount ? (propertyCount.closest('section') || propertyCount.parentElement) : null;
+  function findHeroSection() {
+    const main = document.querySelector('main');
+    const heroByClass = document.querySelector('.hero, [class*="hero"]');
+    if (heroByClass) return heroByClass.closest('section') || heroByClass;
+    const h1 = document.querySelector('h1');
+    if (h1) return h1.closest('section') || h1.closest('header') || h1.parentElement;
+    if (main && main.firstElementChild) return main.firstElementChild;
+    return document.querySelector('header');
   }
 
   function promoteRealtor() {
     const realtor = findRealtorSection();
-    const anchor = findStatsAnchor();
-    if (!realtor || !anchor || realtor === anchor || realtor.contains(anchor)) return false;
-    if (realtor.classList.contains('dt-realtor-promoted')) return true;
-
-    anchor.insertAdjacentElement('afterend', realtor);
+    const hero = findHeroSection();
+    if (!realtor || !hero || realtor === hero || realtor.contains(hero)) return false;
+    const heroSection = hero.closest('section') || hero;
+    heroSection.insertAdjacentElement('afterend', realtor);
     realtor.classList.add('dt-realtor-promoted');
+    realtor.querySelectorAll('img').forEach((img) => {
+      img.style.objectPosition = '50% 8%';
+      img.style.objectFit = 'cover';
+    });
+    return true;
+  }
+
+  function promoteCollections() {
+    const cards = candidateCategoryCards();
+    if (cards.length < 2) return false;
+    let block = cards[0].parentElement;
+    if (!block) return false;
+    const realtor = findRealtorSection();
+    const hero = findHeroSection();
+    const anchor = realtor && realtor.classList.contains('dt-realtor-promoted') ? realtor : hero;
+    if (!anchor || block === anchor || block.contains(anchor) || anchor.contains(block)) return false;
+    anchor.insertAdjacentElement('afterend', block);
     return true;
   }
 
@@ -191,6 +187,7 @@
     addStyles();
     promoteRealtor();
     enhanceCategories();
+    promoteCollections();
   }
 
   if (document.readyState === 'loading') {
@@ -198,6 +195,5 @@
   } else {
     runEnhancements();
   }
-
   [250, 750, 1500, 3000].forEach((delay) => setTimeout(runEnhancements, delay));
 })();
