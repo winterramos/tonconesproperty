@@ -41,20 +41,36 @@ jobs:
                   html += tag
               path.write_text(html, encoding='utf-8')
 
+          # Keep a stable complete mirror.
           if stable_dir.exists():
               shutil.rmtree(stable_dir)
           shutil.copytree(production_dir, stable_dir)
+
+          # The live Vercel project serves the repository root. Publish the
+          # listing pages and their assets there as well so /listings/*.html
+          # and /assets/* resolve normally instead of relying on a JS/raw-GitHub fallback.
+          for dirname in ['listings', 'assets']:
+              src = production_dir / dirname
+              dst = Path(dirname)
+              if dst.exists():
+                  shutil.rmtree(dst)
+              if src.exists():
+                  shutil.copytree(src, dst)
+          for filename in ['404.html', 'robots.txt', 'sitemap.xml']:
+              src = production_dir / filename
+              if src.exists():
+                  shutil.copyfile(src, Path(filename))
           PY
 
       - name: Commit generated production mirror
         run: |
           git config user.name "Discover Troncones Bot"
           git config user.email "actions@users.noreply.github.com"
-          git add index.html "troncones_property_production_site 3/index.html" "troncones_property_production_site 3/homepage-enhancements.js" site
+          git add index.html homepage-enhancements.js "troncones_property_production_site 3/index.html" "troncones_property_production_site 3/homepage-enhancements.js" site listings assets 404.html robots.txt sitemap.xml 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "Production mirror already current."
           else
-            git commit -m "Sync stable Discover Troncones production mirror"
+            git commit -m "Sync complete Discover Troncones production site"
             git push origin main
           fi
 
