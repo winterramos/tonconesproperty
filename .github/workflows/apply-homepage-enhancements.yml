@@ -27,7 +27,7 @@ jobs:
           import shutil
 
           tag = '<script src="/homepage-enhancements.js" defer></script>'
-          hero_tag = '<script>window.addEventListener("load",function(){var h=document.querySelector("section.hero,.hero");if(!h||h.querySelector(".dt-sharp-hero-img"))return;var b=getComputedStyle(h).backgroundImage||"";var m=b.match(/url\\(["\\\' ]?(.*?)["\\\' ]?\\)/);if(!m||!m[1])return;var i=document.createElement("img");i.className="dt-sharp-hero-img";i.src=m[1];i.alt="Troncones Pacific coast";i.fetchPriority="high";i.style.cssText="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;z-index:0;filter:contrast(1.06) brightness(1.02);";h.style.setProperty("position","relative","important");h.style.setProperty("background-image","none","important");h.style.setProperty("filter","none","important");h.style.setProperty("-webkit-filter","none","important");h.insertBefore(i,h.firstChild);Array.from(h.children).forEach(function(c){if(c!==i){c.style.position=c.style.position||"relative";c.style.zIndex=c.style.zIndex||"1";}});});</script>'
+          hero_tag = '<script id="dt-crisp-hero-restore">window.addEventListener("load",function(){var h=document.querySelector("section.hero,.hero");if(!h)return;var old=h.querySelector(".dt-sharp-hero-img");if(old){var src=old.getAttribute("src");if(src)h.style.setProperty("background-image","url(\\\""+src+"\\\")","important");old.remove();}h.style.setProperty("filter","none","important");h.style.setProperty("-webkit-filter","none","important");h.style.setProperty("background-position","center center","important");h.style.setProperty("background-size","cover","important");var s=document.createElement("style");s.textContent=".hero::before,.hero::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}";document.head.appendChild(s);});</script>'
           production_dir = Path('troncones_property_production_site 3')
           stable_dir = Path('site')
 
@@ -50,7 +50,10 @@ jobs:
                   html = html.replace(old, new_click)
               for old in old_keys:
                   html = html.replace(old, new_key)
-              html = html.replace(tag, '').replace(hero_tag, '')
+              import re
+              html = re.sub(r'<script id="dt-crisp-hero-restore">.*?</script>', '', html, flags=re.S)
+              html = re.sub(r'<script>window\.addEventListener\("load",function\(\)\{var h=document\.querySelector\("section\.hero,\.hero"\).*?</script>', '', html, flags=re.S)
+              html = html.replace(tag, '')
               if '</body>' in html:
                   html = html.replace('</body>', tag + hero_tag + '</body>', 1)
               else:
