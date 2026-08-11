@@ -49,11 +49,28 @@
       }
       .dt-realtor-promoted { scroll-margin-top: 90px; }
       .dt-realtor-promoted img {
-        object-position: 50% 12% !important;
+        object-position: center top !important;
+        object-fit: contain !important;
+        width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        display: block !important;
       }
-      .dt-realtor-promoted img[style*="object-fit"],
-      .dt-realtor-promoted img {
-        object-fit: cover !important;
+      .dt-realtor-promoted [class*="image"],
+      .dt-realtor-promoted [class*="photo"],
+      .dt-realtor-promoted [class*="portrait"] {
+        overflow: visible !important;
+        height: auto !important;
+        max-height: none !important;
+      }
+      .dt-hero-restored {
+        background-size: cover !important;
+        background-position: center center !important;
+        filter: none !important;
+      }
+      .dt-hero-restored img {
+        filter: none !important;
+        opacity: 1 !important;
       }
       @media (max-width: 720px) {
         .dt-category-photo-card {
@@ -61,7 +78,11 @@
           border-radius: 14px !important;
           padding: 16px !important;
         }
-        .dt-realtor-promoted img { object-position: 50% 6% !important; }
+        .dt-realtor-promoted img {
+          object-position: center top !important;
+          object-fit: contain !important;
+          height: auto !important;
+        }
       }
     `;
     document.head.appendChild(style);
@@ -156,6 +177,44 @@
     return document.querySelector('header');
   }
 
+  function restoreHeroClarity() {
+    const hero = findHeroSection();
+    if (!hero) return false;
+    const target = hero.matches('.hero, [class*="hero"]') ? hero : (hero.querySelector('.hero, [class*="hero"]') || hero);
+    const bg = getComputedStyle(target).backgroundImage || '';
+    const urlMatch = bg.match(/url\((['"]?)(.*?)\1\)/i);
+    if (urlMatch && urlMatch[2]) {
+      target.style.backgroundImage = `linear-gradient(180deg, rgba(9,17,15,.03), rgba(9,17,15,.30)), url("${urlMatch[2].replace(/"/g, '%22')}")`;
+    }
+    target.style.backgroundSize = 'cover';
+    target.style.backgroundPosition = 'center center';
+    target.style.filter = 'none';
+    target.classList.add('dt-hero-restored');
+    target.querySelectorAll('img').forEach((img) => {
+      img.style.filter = 'none';
+      img.style.opacity = '1';
+    });
+    return true;
+  }
+
+  function fixRealtorPortrait(realtor) {
+    if (!realtor) return false;
+    realtor.querySelectorAll('img').forEach((img) => {
+      img.style.setProperty('object-position', 'center top', 'important');
+      img.style.setProperty('object-fit', 'contain', 'important');
+      img.style.setProperty('width', '100%', 'important');
+      img.style.setProperty('height', 'auto', 'important');
+      img.style.setProperty('max-height', 'none', 'important');
+      img.style.setProperty('display', 'block', 'important');
+      if (img.parentElement) {
+        img.parentElement.style.setProperty('overflow', 'visible', 'important');
+        img.parentElement.style.setProperty('height', 'auto', 'important');
+        img.parentElement.style.setProperty('max-height', 'none', 'important');
+      }
+    });
+    return true;
+  }
+
   function promoteRealtor() {
     const realtor = findRealtorSection();
     const hero = findHeroSection();
@@ -163,17 +222,14 @@
     const heroSection = hero.closest('section') || hero;
     heroSection.insertAdjacentElement('afterend', realtor);
     realtor.classList.add('dt-realtor-promoted');
-    realtor.querySelectorAll('img').forEach((img) => {
-      img.style.objectPosition = '50% 8%';
-      img.style.objectFit = 'cover';
-    });
+    fixRealtorPortrait(realtor);
     return true;
   }
 
   function promoteCollections() {
     const cards = candidateCategoryCards();
     if (cards.length < 2) return false;
-    let block = cards[0].parentElement;
+    const block = cards[0].parentElement;
     if (!block) return false;
     const realtor = findRealtorSection();
     const hero = findHeroSection();
@@ -185,7 +241,9 @@
 
   function runEnhancements() {
     addStyles();
+    restoreHeroClarity();
     promoteRealtor();
+    fixRealtorPortrait(findRealtorSection());
     enhanceCategories();
     promoteCollections();
   }
