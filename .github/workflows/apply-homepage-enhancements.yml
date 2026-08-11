@@ -25,6 +25,9 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import shutil
+          import re
+          import urllib.request
+          import urllib.parse
 
           tag = '<script src="/homepage-enhancements.js" defer></script>'
           hero_tag = '<script id="dt-crisp-hero-restore">window.addEventListener("load",function(){var h=document.querySelector("section.hero,.hero");if(!h)return;var old=h.querySelector(".dt-sharp-hero-img");if(old){var src=old.getAttribute("src");if(src)h.style.setProperty("background-image","url(\\\""+src+"\\\")","important");old.remove();}h.style.setProperty("filter","none","important");h.style.setProperty("-webkit-filter","none","important");h.style.setProperty("background-position","center center","important");h.style.setProperty("background-size","cover","important");var s=document.createElement("style");s.textContent=".hero::before,.hero::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}";document.head.appendChild(s);});</script>'
@@ -50,7 +53,6 @@ jobs:
                   html = html.replace(old, new_click)
               for old in old_keys:
                   html = html.replace(old, new_key)
-              import re
               html = re.sub(r'<script id="dt-crisp-hero-restore">.*?</script>', '', html, flags=re.S)
               html = re.sub(r'<script>window\.addEventListener\("load",function\(\)\{var h=document\.querySelector\("section\.hero,\.hero"\).*?</script>', '', html, flags=re.S)
               html = html.replace(tag, '')
@@ -59,6 +61,84 @@ jobs:
               else:
                   html += tag + hero_tag
               path.write_text(html, encoding='utf-8')
+
+          # Populate each property page with all photos available in the original
+          # Troncones Property listing section. Category source pages are fetched
+          # once and cached, then each listing code is isolated between H3 headings.
+          source_cache = {}
+          headers = {'User-Agent': 'Mozilla/5.0 DiscoverTronconesGallerySync/1.0'}
+          listings_dir = production_dir / 'listings'
+          updated_galleries = 0
+
+          for listing_path in sorted(listings_dir.glob('*.html')):
+              listing_html = listing_path.read_text(encoding='utf-8')
+              source_match = re.search(r'<a class="src" href="([^"]+)"', listing_html, flags=re.I)
+              if not source_match:
+                  continue
+              source_url = source_match.group(1).replace('&amp;', '&')
+              code = listing_path.stem.upper()
+
+              try:
+                  if source_url not in source_cache:
+                      req = urllib.request.Request(source_url, headers=headers)
+                      with urllib.request.urlopen(req, timeout=30) as resp:
+                          source_cache[source_url] = resp.read().decode('utf-8', errors='ignore')
+                  legacy = source_cache[source_url]
+              except Exception as exc:
+                  print(f'Skip {code}: could not fetch source: {exc}')
+                  continue
+
+              code_pos = legacy.lower().find(code.lower())
+              if code_pos < 0:
+                  print(f'Skip {code}: code not found in source page')
+                  continue
+              section_start = legacy.lower().rfind('<h3', 0, code_pos)
+              if section_start < 0:
+                  section_start = max(0, code_pos - 500)
+              next_h3 = legacy.lower().find('<h3', code_pos + len(code))
+              section = legacy[section_start: next_h3 if next_h3 >= 0 else len(legacy)]
+
+              candidates = re.findall(r'(?:src|data-src|href)=["\']([^"\']+\.(?:jpe?g|png|webp)(?:\?[^"\']*)?)["\']', section, flags=re.I)
+              hero_match = re.search(r'<section class="hero"><img[^>]+src="([^"]+)"', listing_html, flags=re.I)
+              urls = []
+              seen = set()
+              def add_url(value):
+                  value = value.strip()
+                  absolute = urllib.parse.urljoin(source_url, value)
+                  if absolute not in seen:
+                      seen.add(absolute)
+                      urls.append(absolute)
+              if hero_match:
+                  add_url(hero_match.group(1))
+              for value in candidates:
+                  if '/assets/images/' in value.lower() or 'assets/images/' in value.lower():
+                      add_url(value)
+
+              if len(urls) <= 1:
+                  print(f'Skip {code}: only {len(urls)} verified image(s) found')
+                  continue
+
+              title_match = re.search(r'<h1>(.*?)</h1>', listing_html, flags=re.S|re.I)
+              title = re.sub(r'<.*?>', '', title_match.group(1)).strip() if title_match else code
+              gallery = '<div class="gallery">' + ''.join(
+                  f'<img loading="{"eager" if i == 0 else "lazy"}" src="{url}" alt="{title} — photo {i+1}">' for i, url in enumerate(urls)
+              ) + '</div>'
+              new_html, count = re.subn(r'<div class="gallery">.*?</div>', gallery, listing_html, count=1, flags=re.S|re.I)
+              if not count:
+                  continue
+              new_html = re.sub(
+                  r'<p class="note">This page currently contains the verified primary image carried into the new site\. Additional legacy gallery photos can be added without changing the page design\.</p>',
+                  '<p class="note">Full property gallery from the original Troncones Property listing.</p>',
+                  new_html,
+                  count=1,
+                  flags=re.I
+              )
+              if new_html != listing_html:
+                  listing_path.write_text(new_html, encoding='utf-8')
+                  updated_galleries += 1
+                  print(f'Gallery {code}: {len(urls)} photos')
+
+          print(f'Updated {updated_galleries} listing galleries')
 
           if stable_dir.exists():
               shutil.rmtree(stable_dir)
