@@ -32,8 +32,15 @@ jobs:
 
           shutil.copyfile('homepage-enhancements.js', production_dir / 'homepage-enhancements.js')
 
+          old_click = "onclick=\"location.href='listings/${p.code.toLowerCase()}.html'\""
+          new_click = "onclick=\"openDetail(p.code)\""
+          old_key = "onkeydown=\"if(event.key==='Enter')location.href='listings/${p.code.toLowerCase()}.html'\""
+          new_key = "onkeydown=\"if(event.key==='Enter')openDetail(p.code)\""
+
           for path in [Path('index.html'), production_dir / 'index.html']:
               html = path.read_text(encoding='utf-8')
+              html = html.replace(old_click, new_click)
+              html = html.replace(old_key, new_key)
               html = html.replace(tag, '')
               if '</body>' in html:
                   html = html.replace('</body>', tag + '</body>', 1)
