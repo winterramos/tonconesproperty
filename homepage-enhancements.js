@@ -34,11 +34,19 @@
   }
   function loadGalleryData(){
     if(window.DT_GALLERIES)return;
-    const script=document.createElement('script');
-    script.src='https://raw.githubusercontent.com/winterramos/tonconesproperty/main/listing-galleries.js';
-    script.defer=true;
-    script.onload=()=>{const code=location.hash.match(/listing=([^&]+)/)?.[1];if(code)showFullGallery(decodeURIComponent(code));};
-    document.head.appendChild(script);
+    fetch('https://raw.githubusercontent.com/winterramos/tonconesproperty/main/listing-galleries.js',{cache:'no-store'})
+      .then(response=>{if(!response.ok)throw new Error('Gallery data unavailable');return response.text();})
+      .then(source=>{
+        const script=document.createElement('script');
+        const blob=URL.createObjectURL(new Blob([source],{type:'text/javascript'}));
+        script.src=blob;
+        script.onload=()=>{
+          URL.revokeObjectURL(blob);
+          const code=location.hash.match(/listing=([^&]+)/)?.[1];
+          if(code)showFullGallery(decodeURIComponent(code));
+        };
+        document.head.appendChild(script);
+      });
   }
   function protectHomepage(){
     const hero=document.querySelector('main section.hero,main .hero');
