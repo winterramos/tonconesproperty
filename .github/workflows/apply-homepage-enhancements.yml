@@ -32,15 +32,26 @@ jobs:
 
           shutil.copyfile('homepage-enhancements.js', production_dir / 'homepage-enhancements.js')
 
-          old_click = "onclick=\"location.href='listings/${p.code.toLowerCase()}.html'\""
-          new_click = "onclick=\"openDetail(p.code)\""
-          old_key = "onkeydown=\"if(event.key==='Enter')location.href='listings/${p.code.toLowerCase()}.html'\""
-          new_key = "onkeydown=\"if(event.key==='Enter')openDetail(p.code)\""
+          # Listing cards are rendered from a JS template string. The click
+          # handler must interpolate the actual listing code while rendering;
+          # using openDetail(p.code) later fails because p is no longer in scope.
+          old_clicks = [
+              "onclick=\"location.href='listings/${p.code.toLowerCase()}.html'\"",
+              "onclick=\"openDetail(p.code)\""
+          ]
+          new_click = "onclick=\"openDetail('${p.code}')\""
+          old_keys = [
+              "onkeydown=\"if(event.key==='Enter')location.href='listings/${p.code.toLowerCase()}.html'\"",
+              "onkeydown=\"if(event.key==='Enter')openDetail(p.code)\""
+          ]
+          new_key = "onkeydown=\"if(event.key==='Enter')openDetail('${p.code}')\""
 
           for path in [Path('index.html'), production_dir / 'index.html']:
               html = path.read_text(encoding='utf-8')
-              html = html.replace(old_click, new_click)
-              html = html.replace(old_key, new_key)
+              for old in old_clicks:
+                  html = html.replace(old, new_click)
+              for old in old_keys:
+                  html = html.replace(old, new_key)
               html = html.replace(tag, '')
               if '</body>' in html:
                   html = html.replace('</body>', tag + '</body>', 1)
@@ -48,14 +59,13 @@ jobs:
                   html += tag
               path.write_text(html, encoding='utf-8')
 
-          # Keep a stable complete mirror.
+          # Keep a stable complete mirror, including the photo-based homepage
+          # collection cards supplied by homepage-enhancements.js.
           if stable_dir.exists():
               shutil.rmtree(stable_dir)
           shutil.copytree(production_dir, stable_dir)
 
-          # The live Vercel project serves the repository root. Publish the
-          # listing pages and their assets there as well so /listings/*.html
-          # and /assets/* resolve normally instead of relying on a JS/raw-GitHub fallback.
+          # Publish listing pages and assets at repository root for Vercel.
           for dirname in ['listings', 'assets']:
               src = production_dir / dirname
               dst = Path(dirname)
