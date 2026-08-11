@@ -27,10 +27,21 @@
     if(!images||!images.length)return;
     const gallery=document.querySelector('#detailContent .gallery');
     if(!gallery)return;
+    const detailHero=document.querySelector('#detailContent .detailhero img');
+    if(detailHero)detailHero.src=images[0];
     gallery.classList.toggle('onephoto',images.length===1);
     gallery.innerHTML=images.map((src,index)=>`<img loading="${index?'lazy':'eager'}" src="${src}" alt="${code} property photo ${index+1}">`).join('');
     const note=document.querySelector('#detailContent .gallery-note');
     if(note)note.remove();
+  }
+  function syncListingThumbnails(){
+    if(!window.DT_GALLERIES)return;
+    document.querySelectorAll('.card').forEach(card=>{
+      const code=(card.querySelector('.sub')?.textContent||'').match(/([A-Z]{3}-[^ ·]+)/)?.[1];
+      const image=code&&window.DT_GALLERIES[code.toLowerCase()]?.[0];
+      const target=card.querySelector('.pic img');
+      if(image&&target)target.src=image;
+    });
   }
   function loadGalleryData(){
     if(window.DT_GALLERIES)return;
@@ -44,6 +55,8 @@
           URL.revokeObjectURL(blob);
           const code=location.hash.match(/listing=([^&]+)/)?.[1];
           if(code)showFullGallery(decodeURIComponent(code));
+          syncListingThumbnails();
+          setTimeout(syncListingThumbnails,300);
         };
         document.head.appendChild(script);
       });
