@@ -1,6 +1,7 @@
 (function () {
   'use strict';
 
+  // Discover Troncones homepage enhancements: realtor placement + photo category cards.
   const CATEGORY_NAMES = [
     'Homes',
     'Condos',
