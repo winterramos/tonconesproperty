@@ -27,40 +27,12 @@ jobs:
           import shutil
 
           tag = '<script src="/homepage-enhancements.js" defer></script>'
+          hero_tag = '<script>window.addEventListener("load",function(){var h=document.querySelector("section.hero,.hero");if(!h||h.querySelector(".dt-sharp-hero-img"))return;var b=getComputedStyle(h).backgroundImage||"";var m=b.match(/url\\(["\\\' ]?(.*?)["\\\' ]?\\)/);if(!m||!m[1])return;var i=document.createElement("img");i.className="dt-sharp-hero-img";i.src=m[1];i.alt="Troncones Pacific coast";i.fetchPriority="high";i.style.cssText="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;z-index:0;filter:contrast(1.06) brightness(1.02);";h.style.setProperty("position","relative","important");h.style.setProperty("background-image","none","important");h.style.setProperty("filter","none","important");h.style.setProperty("-webkit-filter","none","important");h.insertBefore(i,h.firstChild);Array.from(h.children).forEach(function(c){if(c!==i){c.style.position=c.style.position||"relative";c.style.zIndex=c.style.zIndex||"1";}});});</script>'
           production_dir = Path('troncones_property_production_site 3')
           stable_dir = Path('site')
 
-          js_path = Path('homepage-enhancements.js')
-          js = js_path.read_text(encoding='utf-8')
-          old_sharpen = "function sharpenHero(){const hero=document.querySelector('section.hero,.hero');if(!hero)return;hero.style.setProperty('filter','saturate(1.04) contrast(1.16) brightness(1.05)','important');hero.style.setProperty('-webkit-filter','saturate(1.04) contrast(1.16) brightness(1.05)','important');hero.style.setProperty('background-size','cover','important');hero.style.setProperty('background-position','center center','important')}"
-          new_sharpen = """function sharpenHero(){
-    const hero=document.querySelector('section.hero,.hero');if(!hero)return;
-    if(hero.querySelector('.dt-hero-sharp-image'))return;
-    const bg=getComputedStyle(hero).backgroundImage||hero.style.backgroundImage||'';
-    const match=bg.match(/url\\([\"']?(.*?)[\"']?\\)/);
-    if(!match||!match[1])return;
-    const img=document.createElement('img');
-    img.className='dt-hero-sharp-image';
-    img.src=match[1];
-    img.alt='Troncones Pacific coast';
-    img.decoding='sync';
-    img.fetchPriority='high';
-    Object.assign(img.style,{position:'absolute',inset:'0',width:'100%',height:'100%',objectFit:'cover',objectPosition:'center center',zIndex:'0',display:'block',filter:'saturate(1.03) contrast(1.08) brightness(1.03)'});
-    hero.style.setProperty('position','relative','important');
-    hero.style.setProperty('background-image','none','important');
-    hero.style.setProperty('filter','none','important');
-    hero.style.setProperty('-webkit-filter','none','important');
-    hero.insertBefore(img,hero.firstChild);
-    [...hero.children].forEach(child=>{if(child!==img){child.style.position=child.style.position||'relative';child.style.zIndex=child.style.zIndex||'1'}});
-  }"""
-          if old_sharpen in js:
-              js = js.replace(old_sharpen, new_sharpen)
-          js_path.write_text(js, encoding='utf-8')
-
           shutil.copyfile('homepage-enhancements.js', production_dir / 'homepage-enhancements.js')
 
-          # Listing cards are rendered from a JS template string. The click
-          # handler must interpolate the actual listing code while rendering.
           old_clicks = [
               "onclick=\"location.href='listings/${p.code.toLowerCase()}.html'\"",
               "onclick=\"openDetail(p.code)\""
@@ -78,11 +50,11 @@ jobs:
                   html = html.replace(old, new_click)
               for old in old_keys:
                   html = html.replace(old, new_key)
-              html = html.replace(tag, '')
+              html = html.replace(tag, '').replace(hero_tag, '')
               if '</body>' in html:
-                  html = html.replace('</body>', tag + '</body>', 1)
+                  html = html.replace('</body>', tag + hero_tag + '</body>', 1)
               else:
-                  html += tag
+                  html += tag + hero_tag
               path.write_text(html, encoding='utf-8')
 
           if stable_dir.exists():
