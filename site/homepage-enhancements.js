@@ -45,7 +45,7 @@
   }
   function loadGalleryData(){
     if(window.DT_GALLERIES)return;
-    fetch('https://raw.githubusercontent.com/winterramos/tonconesproperty/main/listing-galleries.js?v=coj1-original-20260811',{cache:'no-store'})
+    fetch('https://raw.githubusercontent.com/winterramos/tonconesproperty/main/listing-galleries.js?v=stt1-opposite-ocean-coj1-20260811',{cache:'no-store'})
       .then(response=>{if(!response.ok)throw new Error('Gallery data unavailable');return response.text();})
       .then(source=>{
         const script=document.createElement('script');
