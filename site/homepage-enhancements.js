@@ -14,7 +14,7 @@
     if(!document.getElementById('dt-collection-photo-style')){
       const style=document.createElement('style');
       style.id='dt-collection-photo-style';
-      style.textContent='.area{position:relative!important;overflow:hidden!important;min-height:230px!important;background-size:cover!important;background-position:center!important;color:#fff!important;text-shadow:0 2px 14px rgba(0,0,0,.8)!important;border:0!important}.area:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,18,15,.08),rgba(8,18,15,.72));z-index:0}.area>*{position:relative;z-index:1}.area b{font-size:clamp(24px,3vw,38px)!important}@media(max-width:620px){.areas{grid-template-columns:1fr 1fr!important}.area{min-height:180px!important}}';
+      style.textContent='.areas{display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:12px!important;background:transparent!important;border:0!important;max-width:1040px;margin-left:auto!important;margin-right:auto!important}.area{position:relative!important;overflow:hidden!important;grid-column:span 3;min-height:170px!important;padding:22px 18px!important;background-size:cover!important;background-position:center!important;color:#fff!important;text-shadow:0 2px 14px rgba(0,0,0,.8)!important;border:0!important}.area:nth-child(-n+3){grid-column:span 4}.area:nth-child(n+4){grid-column:span 3}.area:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,18,15,.08),rgba(8,18,15,.72));z-index:0}.area>*{position:relative;z-index:1}.area b{font-size:clamp(20px,2.2vw,30px)!important}#grid{scroll-margin-top:155px}@media(max-width:760px){.areas{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.area,.area:nth-child(n){grid-column:span 1!important;min-height:150px!important}.area:last-child{grid-column:1/-1!important;max-width:calc(50% - 5px);width:100%;justify-self:center}}';
       document.head.appendChild(style);
     }
     document.querySelectorAll('.area').forEach(area=>{
@@ -81,6 +81,11 @@
     }
     styleCollections();
   }
+  document.addEventListener('click',function(event){
+    const tile=event.target.closest&&event.target.closest('.area');
+    if(!tile)return;
+    setTimeout(()=>document.querySelector('#grid')?.scrollIntoView({behavior:'smooth',block:'start'}),120);
+  },true);
   document.addEventListener('click',function(event){
     const card=event.target.closest&&event.target.closest('.card');
     if(!card||typeof window.openDetail!=='function')return;
