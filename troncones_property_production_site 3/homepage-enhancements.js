@@ -35,7 +35,7 @@
   function loadGalleryData(){
     if(window.DT_GALLERIES)return;
     const script=document.createElement('script');
-    script.src='/listing-galleries.js';
+    script.src='https://raw.githubusercontent.com/winterramos/tonconesproperty/main/listing-galleries.js';
     script.defer=true;
     script.onload=()=>{const code=location.hash.match(/listing=([^&]+)/)?.[1];if(code)showFullGallery(decodeURIComponent(code));};
     document.head.appendChild(script);
