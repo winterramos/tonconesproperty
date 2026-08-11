@@ -1,257 +1,186 @@
 (function () {
   'use strict';
 
-  const CATEGORY_NAMES = [
-    'Homes', 'Condos', 'Lots', 'Beachfront Lots', 'Beach Lots', 'Beachfront', 'All Properties'
-  ];
-
-  function normalize(text) {
-    return (text || '').replace(/\s+/g, ' ').trim().toLowerCase();
+  function norm(s) {
+    return (s || '').replace(/\s+/g, ' ').trim().toLowerCase();
   }
 
   function addStyles() {
-    if (document.getElementById('dt-homepage-enhancement-styles')) return;
+    if (document.getElementById('dt-homepage-fixes')) return;
     const style = document.createElement('style');
-    style.id = 'dt-homepage-enhancement-styles';
+    style.id = 'dt-homepage-fixes';
     style.textContent = `
-      .dt-category-photo-card {
+      .dt-realtor-fixed {
+        scroll-margin-top: 90px;
         position: relative !important;
-        overflow: hidden !important;
-        min-height: 190px !important;
-        border-radius: 18px !important;
-        background-size: cover !important;
-        background-position: center !important;
-        isolation: isolate;
-        display: flex !important;
-        align-items: flex-end !important;
-        padding: 22px !important;
-        color: #fff !important;
-        text-shadow: 0 2px 10px rgba(0,0,0,.42);
-        transition: transform .22s ease, box-shadow .22s ease !important;
+        z-index: 2;
       }
-      .dt-category-photo-card::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-        background: linear-gradient(180deg, rgba(12,27,25,.05) 20%, rgba(12,27,25,.72) 100%);
-      }
-      .dt-category-photo-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 30px rgba(0,0,0,.18) !important;
-      }
-      .dt-category-photo-card, .dt-category-photo-card * { color: #fff !important; }
-      .dt-category-photo-card h2, .dt-category-photo-card h3,
-      .dt-category-photo-card h4, .dt-category-photo-card strong,
-      .dt-category-photo-card b {
-        font-size: clamp(1.2rem, 2.1vw, 1.75rem) !important;
-        line-height: 1.08 !important;
-      }
-      .dt-realtor-promoted { scroll-margin-top: 90px; }
-      .dt-realtor-promoted img {
-        object-position: center top !important;
+      .dt-realtor-fixed img {
         object-fit: contain !important;
+        object-position: center top !important;
         width: 100% !important;
         height: auto !important;
         max-height: none !important;
         display: block !important;
       }
-      .dt-realtor-promoted [class*="image"],
-      .dt-realtor-promoted [class*="photo"],
-      .dt-realtor-promoted [class*="portrait"] {
+      .dt-realtor-fixed [class*="image"],
+      .dt-realtor-fixed [class*="photo"],
+      .dt-realtor-fixed [class*="portrait"],
+      .dt-realtor-fixed picture,
+      .dt-realtor-fixed figure {
         overflow: visible !important;
         height: auto !important;
         max-height: none !important;
       }
-      .dt-hero-restored {
+      .dt-hero-sharp {
         background-size: cover !important;
         background-position: center center !important;
         filter: none !important;
+        image-rendering: auto !important;
       }
-      .dt-hero-restored img {
-        filter: none !important;
-        opacity: 1 !important;
+      .dt-hero-sharp::before,
+      .dt-hero-sharp::after {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
       }
       @media (max-width: 720px) {
-        .dt-category-photo-card {
-          min-height: 150px !important;
-          border-radius: 14px !important;
-          padding: 16px !important;
-        }
-        .dt-realtor-promoted img {
+        .dt-realtor-fixed img {
           object-position: center top !important;
           object-fit: contain !important;
-          height: auto !important;
         }
       }
     `;
     document.head.appendChild(style);
   }
 
-  function isUsablePropertyImage(img) {
-    const src = img.currentSrc || img.src || '';
-    if (!src || src.indexOf('image') === -1) return false;
-    const alt = normalize(img.alt);
-    if (/logo|realtor|agent|portrait|headshot|icon/.test(alt)) return false;
-    const nw = img.naturalWidth || Number(img.getAttribute('width')) || 0;
-    const nh = img.naturalHeight || Number(img.getAttribute('height')) || 0;
-    if (nw && nh && (nw < 500 || nh < 260)) return false;
-    return true;
+  function findHero() {
+    return document.querySelector('.hero, [class*="hero"]') ||
+      (document.querySelector('h1') && document.querySelector('h1').closest('section')) ||
+      document.querySelector('main > section') ||
+      document.querySelector('header + *');
   }
 
-  function collectPropertyImages() {
-    const seen = new Set();
-    const images = [];
-    document.querySelectorAll('img').forEach((img) => {
-      if (!isUsablePropertyImage(img)) return;
-      const src = img.currentSrc || img.src;
-      if (seen.has(src)) return;
-      seen.add(src);
-      images.push(src);
-    });
-    return images;
-  }
-
-  function candidateCategoryCards() {
-    const selectors = [
-      '#areaGrid > *', '.areas > *', '.area-grid > *',
-      '[class*="collection"] > *', '[class*="categor"] > *'
-    ];
-    const found = [];
-    const seen = new Set();
-    selectors.forEach((selector) => {
-      document.querySelectorAll(selector).forEach((el) => {
-        if (seen.has(el)) return;
-        const text = normalize(el.textContent);
-        const matches = CATEGORY_NAMES.some((name) => text === normalize(name) || text.startsWith(normalize(name) + ' ') || text.includes(normalize(name)));
-        if (matches && el.getBoundingClientRect().width > 80) {
-          seen.add(el); found.push(el);
-        }
-      });
-    });
-    if (found.length < 3) {
-      document.querySelectorAll('a,button,article,div').forEach((el) => {
-        if (seen.has(el) || el.children.length > 8) return;
-        const text = normalize(el.textContent);
-        const matches = CATEGORY_NAMES.some((name) => text === normalize(name) || text.startsWith(normalize(name) + ' '));
-        if (matches && el.getBoundingClientRect().width > 120 && el.getBoundingClientRect().height > 45) {
-          seen.add(el); found.push(el);
-        }
-      });
-    }
-    return found;
-  }
-
-  function enhanceCategories() {
-    const cards = candidateCategoryCards();
-    const images = collectPropertyImages();
-    if (!cards.length || !images.length) return false;
-    cards.forEach((card, index) => {
-      if (!card.classList.contains('dt-category-photo-card')) {
-        const image = images[(index + 2) % images.length];
-        card.classList.add('dt-category-photo-card');
-        card.style.backgroundImage = `url("${image.replace(/"/g, '%22')}")`;
-      }
-    });
-    return true;
+  function scoreRealtorCandidate(el) {
+    if (!el) return -1;
+    const t = norm(el.textContent);
+    let score = 0;
+    if (t.includes('know your realtor')) score += 10;
+    if (t.includes('meet your realtor')) score += 10;
+    if (t.includes('realtor')) score += 6;
+    if (t.includes('agent')) score += 3;
+    if (t.includes('winter')) score += 4;
+    if (t.includes('ramos')) score += 4;
+    const imgs = el.querySelectorAll ? el.querySelectorAll('img') : [];
+    if (imgs.length) score += 2;
+    return score;
   }
 
   function findRealtorSection() {
-    const nodes = Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,p,strong,div,span'));
-    const heading = nodes.find((el) => {
-      const t = normalize(el.textContent);
-      return t === 'know your realtor' || t.includes('know your realtor') || t === 'meet your realtor';
-    });
-    if (!heading) return null;
-    return heading.closest('section') || heading.closest('[class*="realtor"]') ||
-      heading.closest('[class*="agent"]') || heading.closest('article') || heading.parentElement;
-  }
-
-  function findHeroSection() {
-    const main = document.querySelector('main');
-    const heroByClass = document.querySelector('.hero, [class*="hero"]');
-    if (heroByClass) return heroByClass.closest('section') || heroByClass;
-    const h1 = document.querySelector('h1');
-    if (h1) return h1.closest('section') || h1.closest('header') || h1.parentElement;
-    if (main && main.firstElementChild) return main.firstElementChild;
-    return document.querySelector('header');
-  }
-
-  function restoreHeroClarity() {
-    const hero = findHeroSection();
-    if (!hero) return false;
-    const target = hero.matches('.hero, [class*="hero"]') ? hero : (hero.querySelector('.hero, [class*="hero"]') || hero);
-    const bg = getComputedStyle(target).backgroundImage || '';
-    const urlMatch = bg.match(/url\((['"]?)(.*?)\1\)/i);
-    if (urlMatch && urlMatch[2]) {
-      target.style.backgroundImage = `linear-gradient(180deg, rgba(9,17,15,.03), rgba(9,17,15,.30)), url("${urlMatch[2].replace(/"/g, '%22')}")`;
+    const explicit = document.querySelector('[class*="realtor"], [id*="realtor"], [class*="agent"], [id*="agent"]');
+    if (explicit && scoreRealtorCandidate(explicit) >= 4) {
+      return explicit.closest('section') || explicit;
     }
-    target.style.backgroundSize = 'cover';
-    target.style.backgroundPosition = 'center center';
-    target.style.filter = 'none';
-    target.classList.add('dt-hero-restored');
-    target.querySelectorAll('img').forEach((img) => {
-      img.style.filter = 'none';
-      img.style.opacity = '1';
-    });
+
+    const nodes = Array.from(document.querySelectorAll('section, article, div'));
+    let best = null;
+    let bestScore = -1;
+    for (const el of nodes) {
+      if (el.children.length > 30) continue;
+      const score = scoreRealtorCandidate(el);
+      if (score > bestScore) {
+        bestScore = score;
+        best = el;
+      }
+    }
+    if (best && bestScore >= 6) return best.closest('section') || best;
+    return null;
+  }
+
+  function moveRealtorUp() {
+    const hero = findHero();
+    const realtor = findRealtorSection();
+    if (!hero || !realtor || hero === realtor || realtor.contains(hero)) return false;
+
+    const heroSection = hero.closest('section') || hero;
+    heroSection.insertAdjacentElement('afterend', realtor);
+    realtor.classList.add('dt-realtor-fixed');
     return true;
   }
 
-  function fixRealtorPortrait(realtor) {
+  function fixPortrait() {
+    const realtor = findRealtorSection();
     if (!realtor) return false;
+    realtor.classList.add('dt-realtor-fixed');
+
     realtor.querySelectorAll('img').forEach((img) => {
-      img.style.setProperty('object-position', 'center top', 'important');
       img.style.setProperty('object-fit', 'contain', 'important');
+      img.style.setProperty('object-position', 'center top', 'important');
       img.style.setProperty('width', '100%', 'important');
       img.style.setProperty('height', 'auto', 'important');
       img.style.setProperty('max-height', 'none', 'important');
       img.style.setProperty('display', 'block', 'important');
-      if (img.parentElement) {
-        img.parentElement.style.setProperty('overflow', 'visible', 'important');
-        img.parentElement.style.setProperty('height', 'auto', 'important');
-        img.parentElement.style.setProperty('max-height', 'none', 'important');
+      let p = img.parentElement;
+      for (let i = 0; p && i < 3; i++, p = p.parentElement) {
+        p.style.setProperty('overflow', 'visible', 'important');
+        p.style.setProperty('max-height', 'none', 'important');
       }
     });
     return true;
   }
 
-  function promoteRealtor() {
-    const realtor = findRealtorSection();
-    const hero = findHeroSection();
-    if (!realtor || !hero || realtor === hero || realtor.contains(hero)) return false;
-    const heroSection = hero.closest('section') || hero;
-    heroSection.insertAdjacentElement('afterend', realtor);
-    realtor.classList.add('dt-realtor-promoted');
-    fixRealtorPortrait(realtor);
+  function bestLandscapeImage() {
+    const candidates = [];
+    document.querySelectorAll('img').forEach((img) => {
+      const src = img.currentSrc || img.src || '';
+      if (!src || src.startsWith('data:')) return;
+      const alt = norm(img.alt);
+      if (/logo|icon|avatar|realtor|agent|portrait|headshot/.test(alt)) return;
+      const w = img.naturalWidth || Number(img.getAttribute('width')) || 0;
+      const h = img.naturalHeight || Number(img.getAttribute('height')) || 0;
+      if (w < 1100 || h < 550 || w / Math.max(h, 1) < 1.35) return;
+      candidates.push({ src, area: w * h, ratio: w / h });
+    });
+    candidates.sort((a, b) => (b.area - a.area) || (Math.abs(1.78 - a.ratio) - Math.abs(1.78 - b.ratio)));
+    return candidates[0] ? candidates[0].src : null;
+  }
+
+  function sharpenHero() {
+    const hero = findHero();
+    if (!hero) return false;
+    const target = hero.matches('.hero, [class*="hero"]') ? hero : (hero.querySelector('.hero, [class*="hero"]') || hero);
+    target.classList.add('dt-hero-sharp');
+    target.style.setProperty('filter', 'none', 'important');
+
+    const replacement = bestLandscapeImage();
+    if (replacement) {
+      target.style.setProperty(
+        'background-image',
+        `linear-gradient(180deg, rgba(9,17,15,.10), rgba(9,17,15,.48)), url("${replacement.replace(/"/g, '%22')}")`,
+        'important'
+      );
+      target.style.setProperty('background-size', 'cover', 'important');
+      target.style.setProperty('background-position', 'center center', 'important');
+    }
+    target.querySelectorAll('img').forEach((img) => {
+      img.style.setProperty('filter', 'none', 'important');
+      img.style.setProperty('opacity', '1', 'important');
+    });
     return true;
   }
 
-  function promoteCollections() {
-    const cards = candidateCategoryCards();
-    if (cards.length < 2) return false;
-    const block = cards[0].parentElement;
-    if (!block) return false;
-    const realtor = findRealtorSection();
-    const hero = findHeroSection();
-    const anchor = realtor && realtor.classList.contains('dt-realtor-promoted') ? realtor : hero;
-    if (!anchor || block === anchor || block.contains(anchor) || anchor.contains(block)) return false;
-    anchor.insertAdjacentElement('afterend', block);
-    return true;
-  }
-
-  function runEnhancements() {
+  function run() {
     addStyles();
-    restoreHeroClarity();
-    promoteRealtor();
-    fixRealtorPortrait(findRealtorSection());
-    enhanceCategories();
-    promoteCollections();
+    moveRealtorUp();
+    fixPortrait();
+    sharpenHero();
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', runEnhancements, { once: true });
+    document.addEventListener('DOMContentLoaded', run, { once: true });
   } else {
-    runEnhancements();
+    run();
   }
-  [250, 750, 1500, 3000].forEach((delay) => setTimeout(runEnhancements, delay));
+
+  window.addEventListener('load', run, { once: true });
+  [300, 900, 1800, 3200].forEach((delay) => setTimeout(run, delay));
 })();
