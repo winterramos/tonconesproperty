@@ -1,186 +1,114 @@
 (function () {
   'use strict';
 
-  function norm(s) {
-    return (s || '').replace(/\s+/g, ' ').trim().toLowerCase();
-  }
+  const STYLE_ID = 'discover-troncones-homepage-fixes';
 
   function addStyles() {
-    if (document.getElementById('dt-homepage-fixes')) return;
+    if (document.getElementById(STYLE_ID)) return;
     const style = document.createElement('style');
-    style.id = 'dt-homepage-fixes';
+    style.id = STYLE_ID;
     style.textContent = `
-      .dt-realtor-fixed {
-        scroll-margin-top: 90px;
+      #about.agent-section {
         position: relative !important;
-        z-index: 2;
+        z-index: 2 !important;
       }
-      .dt-realtor-fixed img {
-        object-fit: contain !important;
-        object-position: center top !important;
-        width: 100% !important;
-        height: auto !important;
-        max-height: none !important;
-        display: block !important;
-      }
-      .dt-realtor-fixed [class*="image"],
-      .dt-realtor-fixed [class*="photo"],
-      .dt-realtor-fixed [class*="portrait"],
-      .dt-realtor-fixed picture,
-      .dt-realtor-fixed figure {
-        overflow: visible !important;
-        height: auto !important;
-        max-height: none !important;
-      }
-      .dt-hero-sharp {
+      #about .agent,
+      .agent-section .agent {
+        background-position: 50% 8% !important;
+        background-repeat: no-repeat !important;
         background-size: cover !important;
-        background-position: center center !important;
+      }
+      .hero {
         filter: none !important;
+        -webkit-filter: none !important;
         image-rendering: auto !important;
-      }
-      .dt-hero-sharp::before,
-      .dt-hero-sharp::after {
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-      }
-      @media (max-width: 720px) {
-        .dt-realtor-fixed img {
-          object-position: center top !important;
-          object-fit: contain !important;
-        }
       }
     `;
     document.head.appendChild(style);
   }
 
-  function findHero() {
-    return document.querySelector('.hero, [class*="hero"]') ||
-      (document.querySelector('h1') && document.querySelector('h1').closest('section')) ||
-      document.querySelector('main > section') ||
-      document.querySelector('header + *');
+  function moveRealtorDirectlyBelowHero() {
+    const hero = document.querySelector('section.hero, .hero');
+    const realtor = document.querySelector('#about.agent-section, section.agent-section, #about');
+    if (!hero || !realtor || hero === realtor) return;
+    if (hero.nextElementSibling !== realtor) hero.insertAdjacentElement('afterend', realtor);
   }
 
-  function scoreRealtorCandidate(el) {
-    if (!el) return -1;
-    const t = norm(el.textContent);
-    let score = 0;
-    if (t.includes('know your realtor')) score += 10;
-    if (t.includes('meet your realtor')) score += 10;
-    if (t.includes('realtor')) score += 6;
-    if (t.includes('agent')) score += 3;
-    if (t.includes('winter')) score += 4;
-    if (t.includes('ramos')) score += 4;
-    const imgs = el.querySelectorAll ? el.querySelectorAll('img') : [];
-    if (imgs.length) score += 2;
-    return score;
+  function fixPortraitCrop() {
+    const portrait = document.querySelector('#about .agent, .agent-section .agent, .agent');
+    if (!portrait) return;
+    portrait.style.setProperty('background-position', '50% 8%', 'important');
+    portrait.style.setProperty('background-repeat', 'no-repeat', 'important');
+    portrait.style.setProperty('background-size', 'cover', 'important');
   }
 
-  function findRealtorSection() {
-    const explicit = document.querySelector('[class*="realtor"], [id*="realtor"], [class*="agent"], [id*="agent"]');
-    if (explicit && scoreRealtorCandidate(explicit) >= 4) {
-      return explicit.closest('section') || explicit;
-    }
-
-    const nodes = Array.from(document.querySelectorAll('section, article, div'));
-    let best = null;
-    let bestScore = -1;
-    for (const el of nodes) {
-      if (el.children.length > 30) continue;
-      const score = scoreRealtorCandidate(el);
-      if (score > bestScore) {
-        bestScore = score;
-        best = el;
-      }
-    }
-    if (best && bestScore >= 6) return best.closest('section') || best;
-    return null;
+  function extractUrl(backgroundImage) {
+    if (!backgroundImage || backgroundImage === 'none') return null;
+    const matches = [...backgroundImage.matchAll(/url\(["']?(.*?)["']?\)/g)];
+    return matches.length ? matches[matches.length - 1][1] : null;
   }
 
-  function moveRealtorUp() {
-    const hero = findHero();
-    const realtor = findRealtorSection();
-    if (!hero || !realtor || hero === realtor || realtor.contains(hero)) return false;
-
-    const heroSection = hero.closest('section') || hero;
-    heroSection.insertAdjacentElement('afterend', realtor);
-    realtor.classList.add('dt-realtor-fixed');
-    return true;
-  }
-
-  function fixPortrait() {
-    const realtor = findRealtorSection();
-    if (!realtor) return false;
-    realtor.classList.add('dt-realtor-fixed');
-
-    realtor.querySelectorAll('img').forEach((img) => {
-      img.style.setProperty('object-fit', 'contain', 'important');
-      img.style.setProperty('object-position', 'center top', 'important');
-      img.style.setProperty('width', '100%', 'important');
-      img.style.setProperty('height', 'auto', 'important');
-      img.style.setProperty('max-height', 'none', 'important');
-      img.style.setProperty('display', 'block', 'important');
-      let p = img.parentElement;
-      for (let i = 0; p && i < 3; i++, p = p.parentElement) {
-        p.style.setProperty('overflow', 'visible', 'important');
-        p.style.setProperty('max-height', 'none', 'important');
-      }
+  function imageInfo(src) {
+    return new Promise((resolve) => {
+      if (!src) return resolve(null);
+      const img = new Image();
+      img.onload = function () {
+        resolve({ src, width: img.naturalWidth || img.width, height: img.naturalHeight || img.height });
+      };
+      img.onerror = function () { resolve(null); };
+      img.src = src;
     });
-    return true;
   }
 
-  function bestLandscapeImage() {
-    const candidates = [];
+  async function sharpenHero() {
+    const hero = document.querySelector('section.hero, .hero');
+    if (!hero) return;
+
+    const candidateSources = new Set();
+
     document.querySelectorAll('img').forEach((img) => {
-      const src = img.currentSrc || img.src || '';
-      if (!src || src.startsWith('data:')) return;
-      const alt = norm(img.alt);
-      if (/logo|icon|avatar|realtor|agent|portrait|headshot/.test(alt)) return;
-      const w = img.naturalWidth || Number(img.getAttribute('width')) || 0;
-      const h = img.naturalHeight || Number(img.getAttribute('height')) || 0;
-      if (w < 1100 || h < 550 || w / Math.max(h, 1) < 1.35) return;
-      candidates.push({ src, area: w * h, ratio: w / h });
+      if (img.closest('.agent-section, #about, header, nav, footer')) return;
+      const src = img.currentSrc || img.src;
+      if (src) candidateSources.add(src);
     });
-    candidates.sort((a, b) => (b.area - a.area) || (Math.abs(1.78 - a.ratio) - Math.abs(1.78 - b.ratio)));
-    return candidates[0] ? candidates[0].src : null;
-  }
 
-  function sharpenHero() {
-    const hero = findHero();
-    if (!hero) return false;
-    const target = hero.matches('.hero, [class*="hero"]') ? hero : (hero.querySelector('.hero, [class*="hero"]') || hero);
-    target.classList.add('dt-hero-sharp');
-    target.style.setProperty('filter', 'none', 'important');
+    document.querySelectorAll('section, article, div, figure, a').forEach((el) => {
+      if (el === hero || el.closest('.agent-section, #about, header, nav, footer')) return;
+      const src = extractUrl(getComputedStyle(el).backgroundImage);
+      if (src) candidateSources.add(src);
+    });
 
-    const replacement = bestLandscapeImage();
-    if (replacement) {
-      target.style.setProperty(
-        'background-image',
-        `linear-gradient(180deg, rgba(9,17,15,.10), rgba(9,17,15,.48)), url("${replacement.replace(/"/g, '%22')}")`,
-        'important'
-      );
-      target.style.setProperty('background-size', 'cover', 'important');
-      target.style.setProperty('background-position', 'center center', 'important');
+    const currentHeroSrc = extractUrl(getComputedStyle(hero).backgroundImage);
+    const infos = (await Promise.all([...candidateSources].slice(0, 100).map(imageInfo))).filter(Boolean);
+    const landscapes = infos.filter((i) => i.width >= 1200 && i.height >= 650 && i.width / i.height >= 1.35);
+    landscapes.sort((a, b) => (b.width * b.height) - (a.width * a.height));
+    const best = landscapes[0];
+
+    if (best && best.src && best.src !== currentHeroSrc) {
+      hero.style.setProperty('background-image', `linear-gradient(rgba(0,0,0,.12), rgba(0,0,0,.34)), url("${best.src.replace(/"/g, '\\"')}")`, 'important');
+      hero.style.setProperty('background-size', 'cover', 'important');
+      hero.style.setProperty('background-position', 'center center', 'important');
+      hero.dataset.sharpHeroApplied = '1';
     }
-    target.querySelectorAll('img').forEach((img) => {
-      img.style.setProperty('filter', 'none', 'important');
-      img.style.setProperty('opacity', '1', 'important');
-    });
-    return true;
+    hero.style.setProperty('filter', 'none', 'important');
+    hero.style.setProperty('-webkit-filter', 'none', 'important');
   }
 
-  function run() {
+  function runImmediateFixes() {
     addStyles();
-    moveRealtorUp();
-    fixPortrait();
+    moveRealtorDirectlyBelowHero();
+    fixPortraitCrop();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', runImmediateFixes, { once: true });
+  else runImmediateFixes();
+
+  window.addEventListener('load', function () {
+    runImmediateFixes();
     sharpenHero();
-  }
+  }, { once: true });
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', run, { once: true });
-  } else {
-    run();
-  }
-
-  window.addEventListener('load', run, { once: true });
-  [300, 900, 1800, 3200].forEach((delay) => setTimeout(run, delay));
+  setTimeout(runImmediateFixes, 300);
+  setTimeout(runImmediateFixes, 1000);
+  setTimeout(sharpenHero, 1200);
 })();
