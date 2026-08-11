@@ -82,6 +82,11 @@
     styleCollections();
   }
   document.addEventListener('click',function(event){
+    const tile=event.target.closest&&event.target.closest('.area');
+    if(!tile)return;
+    setTimeout(()=>document.querySelector('#grid')?.scrollIntoView({behavior:'smooth',block:'start'}),120);
+  },true);
+  document.addEventListener('click',function(event){
     const card=event.target.closest&&event.target.closest('.card');
     if(!card||typeof window.openDetail!=='function')return;
     const match=(card.querySelector('.sub')?.textContent||'').match(/([A-Z]{3}-[^ ·]+)/);
