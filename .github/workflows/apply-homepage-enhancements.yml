@@ -38,14 +38,16 @@ jobs:
 
           old_clicks = [
               "onclick=\"location.href='listings/${p.code.toLowerCase()}.html'\"",
-              "onclick=\"openDetail(p.code)\""
+              "onclick=\"openDetail(p.code)\"",
+              "onclick=\"openDetail('${p.code}')\""
           ]
-          new_click = "onclick=\"openDetail('${p.code}')\""
+          new_click = "onclick=\"location.href='listings/${p.code.toLowerCase()}.html'\""
           old_keys = [
               "onkeydown=\"if(event.key==='Enter')location.href='listings/${p.code.toLowerCase()}.html'\"",
-              "onkeydown=\"if(event.key==='Enter')openDetail(p.code)\""
+              "onkeydown=\"if(event.key==='Enter')openDetail(p.code)\"",
+              "onkeydown=\"if(event.key==='Enter')openDetail('${p.code}')\""
           ]
-          new_key = "onkeydown=\"if(event.key==='Enter')openDetail('${p.code}')\""
+          new_key = "onkeydown=\"if(event.key==='Enter')location.href='listings/${p.code.toLowerCase()}.html'\""
 
           for path in [Path('index.html'), production_dir / 'index.html']:
               html = path.read_text(encoding='utf-8')
@@ -62,9 +64,6 @@ jobs:
                   html += tag + hero_tag
               path.write_text(html, encoding='utf-8')
 
-          # Populate each property page with all photos available in the original
-          # Troncones Property listing section. Category source pages are fetched
-          # once and cached, then each listing code is isolated between H3 headings.
           source_cache = {}
           headers = {'User-Agent': 'Mozilla/5.0 DiscoverTronconesGallerySync/1.0'}
           listings_dir = production_dir / 'listings'
