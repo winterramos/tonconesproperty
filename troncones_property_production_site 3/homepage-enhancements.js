@@ -19,11 +19,6 @@
         background-size: contain !important;
         background-color: #e9e3d8 !important;
       }
-      .hero {
-        filter: none !important;
-        -webkit-filter: none !important;
-        image-rendering: auto !important;
-      }
     `;
     document.head.appendChild(style);
   }
@@ -44,72 +39,16 @@
     portrait.style.setProperty('background-color', '#e9e3d8', 'important');
   }
 
-  function extractUrl(backgroundImage) {
-    if (!backgroundImage || backgroundImage === 'none') return null;
-    const matches = [...backgroundImage.matchAll(/url\(["']?(.*?)["']?\)/g)];
-    return matches.length ? matches[matches.length - 1][1] : null;
-  }
-
-  function imageInfo(src) {
-    return new Promise((resolve) => {
-      if (!src) return resolve(null);
-      const img = new Image();
-      img.onload = function () {
-        resolve({ src, width: img.naturalWidth || img.width, height: img.naturalHeight || img.height });
-      };
-      img.onerror = function () { resolve(null); };
-      img.src = src;
-    });
-  }
-
-  async function sharpenHero() {
-    const hero = document.querySelector('section.hero, .hero');
-    if (!hero) return;
-
-    const candidateSources = new Set();
-    document.querySelectorAll('img').forEach((img) => {
-      if (img.closest('.agent-section, #about, header, nav, footer')) return;
-      const src = img.currentSrc || img.src;
-      if (src) candidateSources.add(src);
-    });
-
-    document.querySelectorAll('section, article, div, figure, a').forEach((el) => {
-      if (el === hero || el.closest('.agent-section, #about, header, nav, footer')) return;
-      const src = extractUrl(getComputedStyle(el).backgroundImage);
-      if (src) candidateSources.add(src);
-    });
-
-    const currentHeroSrc = extractUrl(getComputedStyle(hero).backgroundImage);
-    const infos = (await Promise.all([...candidateSources].slice(0, 120).map(imageInfo))).filter(Boolean);
-    const landscapes = infos.filter((i) => i.width >= 1400 && i.height >= 700 && i.width / i.height >= 1.35);
-    landscapes.sort((a, b) => (b.width * b.height) - (a.width * a.height));
-    const best = landscapes[0];
-
-    if (best && best.src && best.src !== currentHeroSrc) {
-      hero.style.setProperty('background-image', `linear-gradient(rgba(0,0,0,.10), rgba(0,0,0,.28)), url("${best.src.replace(/"/g, '\\"')}")`, 'important');
-      hero.style.setProperty('background-size', 'cover', 'important');
-      hero.style.setProperty('background-position', 'center center', 'important');
-      hero.dataset.sharpHeroApplied = '1';
-    }
-    hero.style.setProperty('filter', 'none', 'important');
-    hero.style.setProperty('-webkit-filter', 'none', 'important');
-  }
-
-  function runImmediateFixes() {
+  function runFixes() {
     addStyles();
     moveRealtorDirectlyBelowHero();
     fixPortraitCrop();
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', runImmediateFixes, { once: true });
-  else runImmediateFixes();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', runFixes, { once: true });
+  else runFixes();
 
-  window.addEventListener('load', function () {
-    runImmediateFixes();
-    sharpenHero();
-  }, { once: true });
-
-  setTimeout(runImmediateFixes, 300);
-  setTimeout(runImmediateFixes, 1000);
-  setTimeout(sharpenHero, 1200);
+  window.addEventListener('load', runFixes, { once: true });
+  setTimeout(runFixes, 300);
+  setTimeout(runFixes, 1000);
 })();
