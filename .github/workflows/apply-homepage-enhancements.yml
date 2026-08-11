@@ -20,33 +20,36 @@ jobs:
         with:
           ref: main
 
-      - name: Inject homepage enhancement script
+      - name: Apply enhancements to production site
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import shutil
 
-          path = Path('index.html')
-          html = path.read_text(encoding='utf-8')
           tag = '<script src="/homepage-enhancements.js" defer></script>'
+          production_dir = Path('troncones_property_production_site 3')
 
-          # Keep this idempotent if the workflow is run again later.
-          html = html.replace(tag, '')
-          if '</body>' in html:
-              html = html.replace('</body>', tag + '</body>', 1)
-          else:
-              html += tag
+          # Keep one enhancement source and copy it into the Vercel production root.
+          shutil.copyfile('homepage-enhancements.js', production_dir / 'homepage-enhancements.js')
 
-          path.write_text(html, encoding='utf-8')
+          for path in [Path('index.html'), production_dir / 'index.html']:
+              html = path.read_text(encoding='utf-8')
+              html = html.replace(tag, '')
+              if '</body>' in html:
+                  html = html.replace('</body>', tag + '</body>', 1)
+              else:
+                  html += tag
+              path.write_text(html, encoding='utf-8')
           PY
 
       - name: Commit generated homepage
         run: |
           git config user.name "Discover Troncones Bot"
           git config user.email "actions@users.noreply.github.com"
-          git add index.html
+          git add index.html "troncones_property_production_site 3/index.html" "troncones_property_production_site 3/homepage-enhancements.js"
           if git diff --cached --quiet; then
-            echo "Homepage already contains the enhancement script."
+            echo "Production homepage already contains the enhancement."
           else
-            git commit -m "Apply homepage realtor and category photo enhancements"
+            git commit -m "Apply realtor and category photo enhancements to production site"
             git push origin main
           fi
