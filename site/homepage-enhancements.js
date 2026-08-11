@@ -8,6 +8,16 @@
     const style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = `
+      .hero {
+        filter: none !important;
+        -webkit-filter: none !important;
+        image-rendering: auto !important;
+        background-position: center center !important;
+      }
+      .hero::before, .hero::after {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
       #about.agent-section {
         position: relative !important;
         z-index: 2 !important;
@@ -39,10 +49,18 @@
     portrait.style.setProperty('background-color', '#e9e3d8', 'important');
   }
 
+  function sharpenHero() {
+    const hero = document.querySelector('section.hero, .hero');
+    if (!hero) return;
+    hero.style.setProperty('filter', 'none', 'important');
+    hero.style.setProperty('-webkit-filter', 'none', 'important');
+  }
+
   function runFixes() {
     addStyles();
     moveRealtorDirectlyBelowHero();
     fixPortraitCrop();
+    sharpenHero();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', runFixes, { once: true });
