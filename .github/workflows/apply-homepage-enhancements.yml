@@ -20,7 +20,7 @@ jobs:
         with:
           ref: main
 
-      - name: Apply enhancements to production site
+      - name: Apply enhancements and create stable site mirror
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -28,6 +28,8 @@ jobs:
 
           tag = '<script src="/homepage-enhancements.js" defer></script>'
           production_dir = Path('troncones_property_production_site 3')
+          stable_dir = Path('site')
+
           shutil.copyfile('homepage-enhancements.js', production_dir / 'homepage-enhancements.js')
 
           for path in [Path('index.html'), production_dir / 'index.html']:
@@ -38,17 +40,21 @@ jobs:
               else:
                   html += tag
               path.write_text(html, encoding='utf-8')
+
+          if stable_dir.exists():
+              shutil.rmtree(stable_dir)
+          shutil.copytree(production_dir, stable_dir)
           PY
 
-      - name: Commit generated homepage
+      - name: Commit generated production mirror
         run: |
           git config user.name "Discover Troncones Bot"
           git config user.email "actions@users.noreply.github.com"
-          git add index.html "troncones_property_production_site 3/index.html" "troncones_property_production_site 3/homepage-enhancements.js"
+          git add index.html "troncones_property_production_site 3/index.html" "troncones_property_production_site 3/homepage-enhancements.js" site
           if git diff --cached --quiet; then
-            echo "Production homepage already contains the enhancement."
+            echo "Production mirror already current."
           else
-            git commit -m "Apply realtor and category photo enhancements to production site"
+            git commit -m "Sync stable Discover Troncones production mirror"
             git push origin main
           fi
 
@@ -56,6 +62,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: discover-troncones-production
-          path: troncones_property_production_site 3/
+          path: site/
           include-hidden-files: true
           retention-days: 1
