@@ -28,8 +28,6 @@ jobs:
 
           tag = '<script src="/homepage-enhancements.js" defer></script>'
           production_dir = Path('troncones_property_production_site 3')
-
-          # Keep one enhancement source and copy it into the Vercel production root.
           shutil.copyfile('homepage-enhancements.js', production_dir / 'homepage-enhancements.js')
 
           for path in [Path('index.html'), production_dir / 'index.html']:
@@ -53,3 +51,11 @@ jobs:
             git commit -m "Apply realtor and category photo enhancements to production site"
             git push origin main
           fi
+
+      - name: Package production site
+        uses: actions/upload-artifact@v4
+        with:
+          name: discover-troncones-production
+          path: troncones_property_production_site 3/
+          include-hidden-files: true
+          retention-days: 1
