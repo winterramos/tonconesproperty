@@ -88,7 +88,7 @@
     }
     const agent=about&&about.querySelector('.agent');
     if(agent){
-      agent.style.setProperty('background-image','url("/assets/winter-hammock-profile.jpg")','important');
+      agent.style.setProperty('background-image','url("https://cdn.jsdelivr.net/gh/winterramos/tonconesproperty@d9cd856e6368a623f24c70211bcfad50f1daf4ac/assets/winter-hammock-profile.jpg")','important');
       agent.style.setProperty('background-size','cover','important');
       agent.style.setProperty('background-position','center center','important');
       agent.style.setProperty('background-repeat','no-repeat','important');
