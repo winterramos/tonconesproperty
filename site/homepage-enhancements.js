@@ -82,10 +82,13 @@
     if(hero&&about&&hero.nextElementSibling!==about)hero.insertAdjacentElement('afterend',about);
     const agent=about&&about.querySelector('.agent');
     if(agent){
-      agent.style.setProperty('background-size','contain','important');
-      agent.style.setProperty('background-position','center top','important');
+      agent.style.setProperty('background-image','url("/assets/winter-hammock-profile.jpg")','important');
+      agent.style.setProperty('background-size','cover','important');
+      agent.style.setProperty('background-position','center center','important');
       agent.style.setProperty('background-repeat','no-repeat','important');
       agent.style.setProperty('min-height',innerWidth<621?'380px':'460px','important');
+      agent.setAttribute('role','img');
+      agent.setAttribute('aria-label','Winter Ramos relaxing in a blue hammock in Troncones');
     }
     styleCollections();
   }
