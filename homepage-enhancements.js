@@ -80,16 +80,24 @@
     }
     const about=document.getElementById('about');
     if(hero&&about&&hero.nextElementSibling!==about)hero.insertAdjacentElement('afterend',about);
+    if(!document.getElementById('dt-profile-tightening-style')){
+      const style=document.createElement('style');
+      style.id='dt-profile-tightening-style';
+      style.textContent='#about{padding:58px 0!important}#about .wrap.contact{gap:44px!important;align-items:center!important}.stats{grid-template-columns:repeat(2,minmax(0,1fr))!important;max-width:760px;margin-left:auto!important;margin-right:auto!important}@media(max-width:620px){#about{padding:46px 0!important}#about .wrap.contact{gap:24px!important}.stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}}';
+      document.head.appendChild(style);
+    }
     const agent=about&&about.querySelector('.agent');
     if(agent){
       agent.style.setProperty('background-image','url("/assets/winter-hammock-profile.jpg")','important');
       agent.style.setProperty('background-size','cover','important');
       agent.style.setProperty('background-position','center center','important');
       agent.style.setProperty('background-repeat','no-repeat','important');
-      agent.style.setProperty('min-height',innerWidth<621?'380px':'460px','important');
+      agent.style.setProperty('min-height',innerWidth<621?'330px':'400px','important');
       agent.setAttribute('role','img');
       agent.setAttribute('aria-label','Winter Ramos relaxing in a blue hammock in Troncones');
     }
+    const stats=document.querySelector('.stats');
+    if(stats&&stats.children.length>2)Array.from(stats.children).slice(2).forEach(stat=>stat.remove());
     styleCollections();
   }
   document.addEventListener('click',function(event){
