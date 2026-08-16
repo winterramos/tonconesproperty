@@ -121,6 +121,20 @@
     const card=event.target.closest&&event.target.closest('.card');
     if(card)card.click();
   },true);
+  function addHaciendaLaSaladita(){
+    if(typeof listings==='undefined'||typeof cats==='undefined'||typeof render!=='function')return;
+    const common={code:'HLS-1',category:'Hacienda La Saladita',area:'La Saladita',image:'https://cdn.prod.website-files.com/673cfab3a3e6e1b2ebb64693/673e7e933d76963944c15d0c_casa-mango-la-saladita-guerrero03.webp',source:'https://www.facebook.com/groups/407697642711557/posts/3588647711283185/',gallery:['https://cdn.prod.website-files.com/673cfab3a3e6e1b2ebb64693/673e7e933d76963944c15d0c_casa-mango-la-saladita-guerrero03.webp']};
+    const property=ES_MODE?{...common,title:'Lotes residenciales Hacienda La Saladita',price:'Desde $1,560,000 MXN',description:'Lotes residenciales en Hacienda La Saladita, disponibles en distintas medidas cerca de la comunidad de surf y los servicios locales.',highlights:['Desde aprox. 520 m²','Opciones hasta 800 m²','Anunciados en $3,000 MXN/m²','Plano actualizado disponible'],status:'En venta'}:{...common,title:'Hacienda La Saladita Homesites',price:'From $1,560,000 MXN',description:'Residential homesites in Hacienda La Saladita, offered in a range of sizes near the surf community and local services.',highlights:['From approx. 520 m²','Options up to 800 m²','Advertised at $3,000 MXN/m²','Current lot map on request'],status:'For Sale'};
+    if(!listings.some(item=>item.code===property.code))listings.push(property);
+    const commercial=ES_MODE?'Comercial':'Commercial';
+    if(!cats.includes(common.category))cats.splice(cats.indexOf(commercial),0,common.category);
+    const collectionStat=document.querySelectorAll('.stats .stat b')[1];
+    if(collectionStat)collectionStat.textContent='9';
+    if(typeof renderFilters==='function')renderFilters();
+    render();
+    if(typeof areaGrid!=='undefined'&&areaGrid)areaGrid.innerHTML=cats.slice(1).map(category=>`<div class="area" onclick="setCat('${category}')"><span>${listings.filter(item=>item.category===category).length} ${L('properties','propiedades')}</span><b>${category}</b><span>${L('Explore →','Explorar →')}</span></div>`).join('');
+  }
+  addHaciendaLaSaladita();
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',protectHomepage,{once:true});else protectHomepage();
   loadGalleryData();
   window.addEventListener('load',protectHomepage,{once:true});
