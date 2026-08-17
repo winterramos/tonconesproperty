@@ -26,6 +26,14 @@
     style.textContent='@media(max-width:900px){header nav{flex-wrap:wrap!important}.mobileMenu{display:none!important}.langChoices{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;order:3;flex:0 0 100%;gap:5px!important}.langChoice{display:flex!important;align-items:center;justify-content:center;text-align:center;white-space:nowrap;padding:8px 4px!important;font-size:9px!important;letter-spacing:.02em!important}}';
     document.head.appendChild(style);
   }
+  function removePointOfContactStat(){
+    const stats=document.querySelector('.stats');
+    if(!stats)return;
+    stats.querySelectorAll('.stat').forEach(stat=>{
+      if(/Local point of contact|Punto de contacto local/i.test(stat.textContent||''))stat.remove();
+    });
+    stats.style.setProperty('grid-template-columns','repeat(2,minmax(0,1fr))','important');
+  }
   function styleCollections(){
     if(!document.getElementById('dt-collection-photo-style')){
       const style=document.createElement('style');
@@ -79,6 +87,7 @@
   }
   function protectHomepage(){
     showMobileTopTiles();
+    removePointOfContactStat();
     const hero=document.querySelector('main section.hero,main .hero');
     if(hero){
       hero.style.setProperty('background-image',`linear-gradient(180deg,rgba(9,17,15,.12),rgba(9,17,15,.64)),url("${PTB1}")`,'important');
