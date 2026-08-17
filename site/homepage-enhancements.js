@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   const PTB1='https://www.tronconesbeachproperty.com/assets/images/ptb11-1256x837.jpg';
-  const HAMMOCK_PROFILE='https://cdn.prod.website-files.com/68bdfb8e9ed721a61c9acc19/692a49b69e48e5599a32c217_WhatsApp%20Image%202025-11-27%20at%2007.43.29.avif';
+  const HAMMOCK_PROFILE='https://cdn.prod.website-files.com/68bdfb8e9ed721a61c9acc19/6928983cc927661131b58431_IMG_4697.avif';
   const COLLECTION_IMAGES={
     'Homes':PTB1,
     'Condos':'https://www.tronconesbeachproperty.com/assets/images/1mainphoto-1-1696x1131.jpg',
