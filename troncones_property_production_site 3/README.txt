@@ -22,4 +22,3 @@ IMPORTANT BEFORE SWITCHING THE LIVE DOMAIN
 4. Reconfirm listing availability and pricing.
 
 This package does not modify the current live website.
-
