@@ -19,6 +19,13 @@
     'El Rancho / Palo Alto':COLLECTION_IMAGES['Ranch / Palo Alto'],
     'Comercial':COLLECTION_IMAGES['Commercial']
   });
+  function showMobileTopTiles(){
+    if(document.getElementById('dt-mobile-top-tiles'))return;
+    const style=document.createElement('style');
+    style.id='dt-mobile-top-tiles';
+    style.textContent='@media(max-width:900px){header nav{flex-wrap:wrap!important}.mobileMenu{display:none!important}.langChoices{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;order:3;flex:0 0 100%;gap:5px!important}.langChoice{display:flex!important;align-items:center;justify-content:center;text-align:center;white-space:nowrap;padding:8px 4px!important;font-size:9px!important;letter-spacing:.02em!important}}';
+    document.head.appendChild(style);
+  }
   function styleCollections(){
     if(!document.getElementById('dt-collection-photo-style')){
       const style=document.createElement('style');
@@ -71,6 +78,7 @@
       });
   }
   function protectHomepage(){
+    showMobileTopTiles();
     const hero=document.querySelector('main section.hero,main .hero');
     if(hero){
       hero.style.setProperty('background-image',`linear-gradient(180deg,rgba(9,17,15,.12),rgba(9,17,15,.64)),url("${PTB1}")`,'important');
