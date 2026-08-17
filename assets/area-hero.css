@@ -7,6 +7,6 @@
 .hero-video { display:block; width:100%; height:100%; object-fit:cover; object-position:center 48%; }
 .hero-description { padding-top:32px; }
 .hero p { color:var(--ink); font:23px/1.5 Georgia,serif; }
-@media(min-width:761px){.hero-media{background:#10251f}.hero-video{max-width:none;margin:0;object-fit:cover;object-position:center center;filter:contrast(1.06) saturate(1.03)}}
+@media(min-width:761px){.hero-media{background:#10251f}.hero-video{max-width:none;margin:0;object-fit:cover;object-position:center center;filter:contrast(1.1) saturate(1.04) brightness(1.01)}}
 @media(max-width:760px){.hero-heading{padding:34px 0 26px}.hero-media{height:min(72svh,720px)}.hero-video{max-width:none;margin:0;object-position:center center;filter:none}.hero-description{padding:26px 0 34px}.hero p{font-size:20px}}
 @media(prefers-reduced-motion:reduce){.hero-video{display:none}}
