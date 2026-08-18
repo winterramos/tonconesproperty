@@ -17,11 +17,11 @@ header{position:sticky;top:0;z-index:10;background:rgba(244,240,231,.96);backdro
 @media(max-width:700px){.hero{min-height:540px;background-position:center center}.hero h1{text-shadow:0 2px 18px rgba(0,0,0,.28)}nav{min-height:70px}.brand{font-size:15px}.brand small{font-size:7px}.navright{gap:6px}.pill{padding:8px 10px;font-size:11px}.hero{padding:70px 0 62px}.hero p{font-size:17px}.intro{padding-top:48px}.card h2{font-size:27px}}
 @media(max-width:480px){.wrap{width:min(100% - 26px,980px)}nav{align-items:center}.brand{font-size:13px;letter-spacing:.05em}.brand small{letter-spacing:.18em}.navright .home{display:none}.pill{padding:7px 9px}.hero h1{font-size:43px}}
 </style>
-</head>
+<style id="dt-top-tiles">.navright{display:flex;align-items:center;gap:5px}.pill{border:1px solid currentColor!important;border-radius:7px!important;padding:8px 12px!important;font-size:10px!important;letter-spacing:.1em!important;font-weight:700!important;line-height:1!important;text-align:center;white-space:nowrap;background:transparent!important}.pill.active{background:var(--deep)!important;color:#fff!important;border-color:var(--deep)!important}@media(max-width:900px){header nav{flex-wrap:wrap!important;padding:11px 0}.navright{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;order:3;flex:0 0 100%;gap:5px!important}.pill{display:flex!important;align-items:center;justify-content:center;padding:8px 4px!important;font-size:9px!important;letter-spacing:.02em!important}.brand{font-size:15px!important}.brand small{font-size:6px!important}}</style></head>
 <body>
 <header><div class="wrap"><nav>
 <a class="brand" href="/">TRONCONES PROPERTY<small>GUERRERO · MEXICO</small></a>
-<div class="navright"><a class="pill home" href="/">← <span data-home>Properties</span></a><a class="pill active" href="?lang=en">English</a><a class="pill" href="?lang=es">Español</a></div>
+<div class="navright langChoices"><a class="pill areaNav" href="/area-guide.html">Area Guide</a><a class="pill buyingNav active" href="/buying-in-mexico.html">Buying Guide</a><a class="pill enChoice active" href="?lang=en">English</a><a class="pill esChoice" href="?lang=es">Español</a></div>
 </nav></div></header>
 <main>
 <div lang-content="en">
@@ -62,6 +62,6 @@ header{position:sticky;top:0;z-index:10;background:rgba(244,240,231,.96);backdro
 </main>
 <footer><div class="wrap">Winter Ramos · (US) +1 831 325 7356 · (MX) +52 755 139 5041 · tronconesproperty@outlook.com</div></footer>
 <script>
-const es=new URLSearchParams(location.search).get('lang')==='es';document.body.classList.toggle('es',es);document.documentElement.lang=es?'es':'en';if(es){document.title='Guía de Compra — Troncones Property';document.querySelector('.brand small').textContent='GUERRERO · MÉXICO';document.querySelector('[data-home]').textContent='Propiedades';const p=document.querySelectorAll('.navright .pill');p[1].classList.remove('active');p[2].classList.add('active');}
+const es=new URLSearchParams(location.search).get('lang')==='es';document.body.classList.toggle('es',es);document.documentElement.lang=es?'es':'en';if(es){document.title='Guía de Compra — Troncones Property';document.querySelector('.brand small').textContent='GUERRERO · MÉXICO';document.querySelector('.areaNav').textContent='Guía de Zona';document.querySelector('.buyingNav').textContent='Guía de Compra';document.querySelector('.areaNav').href='/area-guide.html?lang=es';document.querySelector('.buyingNav').href='/buying-in-mexico.html?lang=es';document.querySelector('.enChoice').classList.remove('active');document.querySelector('.esChoice').classList.add('active');}
 </script>
 </body></html>
