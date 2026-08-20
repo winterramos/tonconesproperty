@@ -1,5 +1,7 @@
 name: Migrate production image assets
 
+# One-time recovery rerun after image-preservation fix
+
 on:
   push:
     paths:
