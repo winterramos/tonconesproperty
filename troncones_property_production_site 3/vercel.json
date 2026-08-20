@@ -1,115 +1,27 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
-    {
-      "source": "/Buying Guide.html",
-      "destination": "/buying-in-mexico.html",
-      "permanent": true
-    },
-    {
-      "source": "/La Playa Beachfront Community.html",
-      "destination": "/#listings",
-      "permanent": true
-    },
-    {
-      "source": "/Troncones Area Homes.html",
-      "destination": "/#listings",
-      "permanent": true
-    },
-    {
-      "source": "/Troncones Area Beachfront Lots.html",
-      "destination": "/#listings",
-      "permanent": true
-    },
-    {
-      "source": "/Troncones Area Condos.html",
-      "destination": "/#listings",
-      "permanent": true
-    },
-    {
-      "source": "/Troncones Area Lots.html",
-      "destination": "/#listings",
-      "permanent": true
-    },
-    {
-      "source": "/Playa Saladita.html",
-      "destination": "/#listings",
-      "permanent": true
-    },
-    {
-      "source": "/Ranch-Palo Alto.html",
-      "destination": "/#listings",
-      "permanent": true
-    },
-    {
-      "source": "/Commercial.html",
-      "destination": "/#listings",
-      "permanent": true
-    },
-    {
-      "source": "/Buena Vista.html",
-      "destination": "/#listings",
-      "permanent": true
-    },
-    {
-      "source": "/ESP",
-      "destination": "/?lang=es",
-      "permanent": true
-    },
-    {
-      "source": "/ESP/",
-      "destination": "/?lang=es",
-      "permanent": true
-    },
-    {
-      "source": "/ESP/Buying Guide.html",
-      "destination": "/buying-in-mexico.html?lang=es",
-      "permanent": true
-    },
-    {
-      "source": "/ESP/La Playa Beachfront Community.html",
-      "destination": "/?lang=es#listings",
-      "permanent": true
-    },
-    {
-      "source": "/ESP/Troncones Area Homes.html",
-      "destination": "/?lang=es#listings",
-      "permanent": true
-    },
-    {
-      "source": "/ESP/Troncones Area Beachfront Lots.html",
-      "destination": "/?lang=es#listings",
-      "permanent": true
-    },
-    {
-      "source": "/ESP/Troncones Area Condos.html",
-      "destination": "/?lang=es#listings",
-      "permanent": true
-    },
-    {
-      "source": "/ESP/Troncones Area Lots.html",
-      "destination": "/?lang=es#listings",
-      "permanent": true
-    },
-    {
-      "source": "/ESP/Playa Saladita.html",
-      "destination": "/?lang=es#listings",
-      "permanent": true
-    },
-    {
-      "source": "/ESP/Ranch-Palo Alto.html",
-      "destination": "/?lang=es#listings",
-      "permanent": true
-    },
-    {
-      "source": "/ESP/Commercial.html",
-      "destination": "/?lang=es#listings",
-      "permanent": true
-    },
-    {
-      "source": "/ESP/Buena Vista.html",
-      "destination": "/?lang=es#listings",
-      "permanent": true
-    }
+    {"source": "/Buying%20Guide.html", "destination": "/buying-in-mexico.html", "permanent": true},
+    {"source": "/La%20Playa%20Beachfront%20Community.html", "destination": "/#listings", "permanent": true},
+    {"source": "/Troncones%20Area%20Homes.html", "destination": "/#listings", "permanent": true},
+    {"source": "/Troncones%20Area%20Beachfront%20Lots.html", "destination": "/#listings", "permanent": true},
+    {"source": "/Troncones%20Area%20Condos.html", "destination": "/#listings", "permanent": true},
+    {"source": "/Troncones%20Area%20Lots.html", "destination": "/#listings", "permanent": true},
+    {"source": "/Playa%20Saladita.html", "destination": "/#listings", "permanent": true},
+    {"source": "/Ranch-Palo%20Alto.html", "destination": "/#listings", "permanent": true},
+    {"source": "/Commercial.html", "destination": "/#listings", "permanent": true},
+    {"source": "/Buena%20Vista.html", "destination": "/#listings", "permanent": true},
+    {"source": "/ESP", "destination": "/?lang=es", "permanent": true},
+    {"source": "/ESP/", "destination": "/?lang=es", "permanent": true},
+    {"source": "/ESP/Buying%20Guide.html", "destination": "/buying-in-mexico.html?lang=es", "permanent": true},
+    {"source": "/ESP/La%20Playa%20Beachfront%20Community.html", "destination": "/?lang=es#listings", "permanent": true},
+    {"source": "/ESP/Troncones%20Area%20Homes.html", "destination": "/?lang=es#listings", "permanent": true},
+    {"source": "/ESP/Troncones%20Area%20Beachfront%20Lots.html", "destination": "/?lang=es#listings", "permanent": true},
+    {"source": "/ESP/Troncones%20Area%20Condos.html", "destination": "/?lang=es#listings", "permanent": true},
+    {"source": "/ESP/Troncones%20Area%20Lots.html", "destination": "/?lang=es#listings", "permanent": true},
+    {"source": "/ESP/Playa%20Saladita.html", "destination": "/?lang=es#listings", "permanent": true},
+    {"source": "/ESP/Ranch-Palo%20Alto.html", "destination": "/?lang=es#listings", "permanent": true},
+    {"source": "/ESP/Commercial.html", "destination": "/?lang=es#listings", "permanent": true},
+    {"source": "/ESP/Buena%20Vista.html", "destination": "/?lang=es#listings", "permanent": true}
   ]
 }
