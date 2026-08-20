@@ -1,0 +1,12 @@
+.hero { display:block; min-height:0; padding:0; color:var(--ink); background:var(--sand); }
+.hero-heading,.hero-description { padding:44px 0; }
+.hero-heading { padding-bottom:34px; }
+.hero-heading .eyebrow { color:var(--gold); }
+.hero h1 { margin-bottom:0; }
+.hero-media { position:relative; width:100%; height:clamp(560px,78vh,820px); overflow:hidden; isolation:isolate; background:#10251f; }
+.hero-media::before { content:""; position:absolute; inset:-28px; z-index:-1; background:linear-gradient(rgba(16,37,31,.28),rgba(16,37,31,.28)),url("area-hero-poster.jpg") center/cover no-repeat; filter:blur(20px) saturate(.9); transform:scale(1.06); }
+.hero-video { display:block; width:auto; max-width:100%; height:100%; margin:0 auto; object-fit:contain; object-position:center; box-shadow:0 0 70px rgba(0,0,0,.2); }
+.hero-description { padding-top:32px; }
+.hero p { color:var(--ink); font:23px/1.5 Georgia,serif; }
+@media(max-width:760px){.hero-heading{padding:34px 0 26px}.hero-media{height:min(72svh,720px)}.hero-video{object-position:center center}.hero-description{padding:26px 0 34px}.hero p{font-size:20px}}
+@media(prefers-reduced-motion:reduce){.hero-video{display:none}}
