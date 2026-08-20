@@ -3,11 +3,16 @@
   const PTB1='/assets/images/ptb11-1256x837.jpg';
   const HAMMOCK_PROFILE='https://cdn.prod.website-files.com/68bdfb8e9ed721a61c9acc19/6928983cc927661131b58431_IMG_4697.avif';
   const LEGACY_ASSET_PREFIX='https://www.tronconesbeachproperty.com/assets/';
-  const localAsset=src=>typeof src==='string'?src.replace(LEGACY_ASSET_PREFIX,'/assets/'):src;
+  const ASSET_VERSION='dt-assets-20260820';
+  const localAsset=src=>{
+    if(typeof src!=='string')return src;
+    const localized=src.replace(LEGACY_ASSET_PREFIX,'/assets/');
+    return localized.startsWith('/assets/')&&!localized.includes('?')?`${localized}?v=${ASSET_VERSION}`:localized;
+  };
   function localizePageImages(){
     document.querySelectorAll('img[src]').forEach(img=>{
       const src=img.getAttribute('src');
-      if(src&&src.startsWith(LEGACY_ASSET_PREFIX))img.setAttribute('src',localAsset(src));
+      if(src&&(src.startsWith(LEGACY_ASSET_PREFIX)||src.startsWith('/assets/')))img.setAttribute('src',localAsset(src));
     });
   }
   const COLLECTION_IMAGES={
@@ -51,7 +56,7 @@
     }
     document.querySelectorAll('.area').forEach(area=>{
       const label=area.querySelector('b')?.textContent.trim();
-      if(COLLECTION_IMAGES[label])area.style.backgroundImage=`url("${COLLECTION_IMAGES[label]}")`;
+      if(COLLECTION_IMAGES[label])area.style.backgroundImage=`url("${localAsset(COLLECTION_IMAGES[label])}")`;
     });
   }
   function showFullGallery(code){
@@ -99,7 +104,7 @@
     removePointOfContactStat();
     const hero=document.querySelector('main section.hero,main .hero');
     if(hero){
-      hero.style.setProperty('background-image',`linear-gradient(180deg,rgba(9,17,15,.12),rgba(9,17,15,.64)),url("${PTB1}")`,'important');
+      hero.style.setProperty('background-image',`linear-gradient(180deg,rgba(9,17,15,.12),rgba(9,17,15,.64)),url("${localAsset(PTB1)}")`,'important');
       hero.style.setProperty('filter','none','important');
       hero.style.setProperty('-webkit-filter','none','important');
       hero.style.setProperty('background-position','center center','important');
