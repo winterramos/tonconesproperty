@@ -1,0 +1,52 @@
+name: Migrate production image assets
+
+on:
+  push:
+    paths:
+      - ".github/workflows/migrate-production-assets.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  migrate-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Collect referenced production images
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets/images
+          grep -rhoE 'https://www\.tronconesbeachproperty\.com/assets/images/[A-Za-z0-9_./+()&-]+'             index.html area-guide.html listing-galleries.js listings 2>/dev/null             | sort -u > /tmp/asset_urls.txt
+          echo "Found $(wc -l < /tmp/asset_urls.txt) referenced images"
+
+      - name: Download images from the legacy server
+        shell: bash
+        run: |
+          set -euo pipefail
+          xargs -n 1 -P 12 bash -c '
+            url="$1"
+            file="${url##*/}"
+            curl -fsS --retry 3 --connect-timeout 15 --max-time 120               --resolve www.tronconesbeachproperty.com:443:107.180.41.148               "$url" -o "assets/images/$file" || true
+          ' bash < /tmp/asset_urls.txt
+          test -s assets/images/ptb11-1256x837.jpg
+          echo "Downloaded $(find assets/images -type f | wc -l) images"
+
+      - name: Save images in the production repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "Discover Troncones Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -- assets/images
+          if git diff --cached --quiet; then
+            echo "No new image files"
+            exit 0
+          fi
+          git commit -m "Add production image library for Vercel"
+          git push
