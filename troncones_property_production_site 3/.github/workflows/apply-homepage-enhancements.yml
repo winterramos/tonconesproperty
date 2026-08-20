@@ -1,0 +1,177 @@
+name: Apply homepage enhancements
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'homepage-enhancements.js'
+      - '.github/workflows/apply-homepage-enhancements.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  inject-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Apply enhancements and create stable site mirror
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import shutil
+          import re
+          import urllib.request
+          import urllib.parse
+
+          tag = '<script src="/homepage-enhancements.js" defer></script>'
+          hero_tag = '<script id="dt-crisp-hero-restore">window.addEventListener("load",function(){var h=document.querySelector("section.hero,.hero");if(!h)return;var old=h.querySelector(".dt-sharp-hero-img");if(old){var src=old.getAttribute("src");if(src)h.style.setProperty("background-image","url(\\\""+src+"\\\")","important");old.remove();}h.style.setProperty("filter","none","important");h.style.setProperty("-webkit-filter","none","important");h.style.setProperty("background-position","center center","important");h.style.setProperty("background-size","cover","important");var s=document.createElement("style");s.textContent=".hero::before,.hero::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}";document.head.appendChild(s);});</script>'
+          production_dir = Path('troncones_property_production_site 3')
+          stable_dir = Path('site')
+
+          shutil.copyfile('homepage-enhancements.js', production_dir / 'homepage-enhancements.js')
+
+          old_clicks = [
+              "onclick=\"location.href='listings/${p.code.toLowerCase()}.html'\"",
+              "onclick=\"openDetail(p.code)\"",
+              "onclick=\"openDetail('${p.code}')\""
+          ]
+          new_click = "onclick=\"location.href='listings/${p.code.toLowerCase()}.html'\""
+          old_keys = [
+              "onkeydown=\"if(event.key==='Enter')location.href='listings/${p.code.toLowerCase()}.html'\"",
+              "onkeydown=\"if(event.key==='Enter')openDetail(p.code)\"",
+              "onkeydown=\"if(event.key==='Enter')openDetail('${p.code}')\""
+          ]
+          new_key = "onkeydown=\"if(event.key==='Enter')location.href='listings/${p.code.toLowerCase()}.html'\""
+
+          for path in [Path('index.html'), production_dir / 'index.html']:
+              html = path.read_text(encoding='utf-8')
+              for old in old_clicks:
+                  html = html.replace(old, new_click)
+              for old in old_keys:
+                  html = html.replace(old, new_key)
+              html = re.sub(r'<script id="dt-crisp-hero-restore">.*?</script>', '', html, flags=re.S)
+              html = re.sub(r'<script>window\.addEventListener\("load",function\(\)\{var h=document\.querySelector\("section\.hero,\.hero"\).*?</script>', '', html, flags=re.S)
+              html = html.replace(tag, '')
+              if '</body>' in html:
+                  html = html.replace('</body>', tag + hero_tag + '</body>', 1)
+              else:
+                  html += tag + hero_tag
+              path.write_text(html, encoding='utf-8')
+
+          source_cache = {}
+          headers = {'User-Agent': 'Mozilla/5.0 DiscoverTronconesGallerySync/1.0'}
+          listings_dir = production_dir / 'listings'
+          updated_galleries = 0
+
+          for listing_path in sorted(listings_dir.glob('*.html')):
+              listing_html = listing_path.read_text(encoding='utf-8')
+              source_match = re.search(r'<a class="src" href="([^"]+)"', listing_html, flags=re.I)
+              if not source_match:
+                  continue
+              source_url = source_match.group(1).replace('&amp;', '&')
+              code = listing_path.stem.upper()
+
+              try:
+                  if source_url not in source_cache:
+                      req = urllib.request.Request(source_url, headers=headers)
+                      with urllib.request.urlopen(req, timeout=30) as resp:
+                          source_cache[source_url] = resp.read().decode('utf-8', errors='ignore')
+                  legacy = source_cache[source_url]
+              except Exception as exc:
+                  print(f'Skip {code}: could not fetch source: {exc}')
+                  continue
+
+              code_pos = legacy.lower().find(code.lower())
+              if code_pos < 0:
+                  print(f'Skip {code}: code not found in source page')
+                  continue
+              section_start = legacy.lower().rfind('<h3', 0, code_pos)
+              if section_start < 0:
+                  section_start = max(0, code_pos - 500)
+              next_h3 = legacy.lower().find('<h3', code_pos + len(code))
+              section = legacy[section_start: next_h3 if next_h3 >= 0 else len(legacy)]
+
+              candidates = re.findall(r'(?:src|data-src|href)=["\']([^"\']+\.(?:jpe?g|png|webp)(?:\?[^"\']*)?)["\']', section, flags=re.I)
+              hero_match = re.search(r'<section class="hero"><img[^>]+src="([^"]+)"', listing_html, flags=re.I)
+              urls = []
+              seen = set()
+              def add_url(value):
+                  value = value.strip()
+                  absolute = urllib.parse.urljoin(source_url, value)
+                  if absolute not in seen:
+                      seen.add(absolute)
+                      urls.append(absolute)
+              if hero_match:
+                  add_url(hero_match.group(1))
+              for value in candidates:
+                  if '/assets/images/' in value.lower() or 'assets/images/' in value.lower():
+                      add_url(value)
+
+              if len(urls) <= 1:
+                  print(f'Skip {code}: only {len(urls)} verified image(s) found')
+                  continue
+
+              title_match = re.search(r'<h1>(.*?)</h1>', listing_html, flags=re.S|re.I)
+              title = re.sub(r'<.*?>', '', title_match.group(1)).strip() if title_match else code
+              gallery = '<div class="gallery">' + ''.join(
+                  f'<img loading="{"eager" if i == 0 else "lazy"}" src="{url}" alt="{title} — photo {i+1}">' for i, url in enumerate(urls)
+              ) + '</div>'
+              new_html, count = re.subn(r'<div class="gallery">.*?</div>', gallery, listing_html, count=1, flags=re.S|re.I)
+              if not count:
+                  continue
+              new_html = re.sub(
+                  r'<p class="note">This page currently contains the verified primary image carried into the new site\. Additional legacy gallery photos can be added without changing the page design\.</p>',
+                  '<p class="note">Full property gallery from the original Troncones Property listing.</p>',
+                  new_html,
+                  count=1,
+                  flags=re.I
+              )
+              if new_html != listing_html:
+                  listing_path.write_text(new_html, encoding='utf-8')
+                  updated_galleries += 1
+                  print(f'Gallery {code}: {len(urls)} photos')
+
+          print(f'Updated {updated_galleries} listing galleries')
+
+          if stable_dir.exists():
+              shutil.rmtree(stable_dir)
+          shutil.copytree(production_dir, stable_dir)
+
+          for dirname in ['listings', 'assets']:
+              src = production_dir / dirname
+              dst = Path(dirname)
+              if dst.exists():
+                  shutil.rmtree(dst)
+              if src.exists():
+                  shutil.copytree(src, dst)
+          for filename in ['404.html', 'robots.txt', 'sitemap.xml']:
+              src = production_dir / filename
+              if src.exists():
+                  shutil.copyfile(src, Path(filename))
+          PY
+
+      - name: Commit generated production mirror
+        run: |
+          git config user.name "Discover Troncones Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html homepage-enhancements.js "troncones_property_production_site 3/index.html" "troncones_property_production_site 3/homepage-enhancements.js" site listings assets 404.html robots.txt sitemap.xml 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "Production mirror already current."
+          else
+            git commit -m "Sync complete Discover Troncones production site"
+            git push origin main
+          fi
+
+      - name: Package production site
+        uses: actions/upload-artifact@v4
+        with:
+          name: discover-troncones-production
+          path: site/
+          include-hidden-files: true
+          retention-days: 1
