@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": false,
   "redirects": [
     {"source": "/Buying%20Guide.html", "destination": "/buying-in-mexico.html", "permanent": true},
     {"source": "/La%20Playa%20Beachfront%20Community.html", "destination": "/#listings", "permanent": true},
