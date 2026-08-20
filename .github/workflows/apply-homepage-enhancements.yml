@@ -146,6 +146,12 @@ jobs:
           for dirname in ['listings', 'assets']:
               src = production_dir / dirname
               dst = Path(dirname)
+              if dirname == 'assets':
+                  # Production images are migrated separately; never delete them
+                  # when refreshing the generated homepage/listing mirror.
+                  if src.exists():
+                      shutil.copytree(src, dst, dirs_exist_ok=True)
+                  continue
               if dst.exists():
                   shutil.rmtree(dst)
               if src.exists():
