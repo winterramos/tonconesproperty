@@ -1,0 +1,1 @@
+Production deployment trigger for the verified August 18, 2026 Discover Troncones backup.
