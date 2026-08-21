@@ -1,11 +1,7 @@
 name: Apply homepage enhancements
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'homepage-enhancements.js'
-      - '.github/workflows/apply-homepage-enhancements.yml'
+  # Manual only: prevents an older generated mirror from overwriting the approved live site.
   workflow_dispatch:
 
 permissions:
