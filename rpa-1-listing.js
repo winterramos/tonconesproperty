@@ -8,7 +8,7 @@ window.addEventListener('DOMContentLoaded', () => {
     price: '$650,000 USD',
     image: 'assets/listings/rpa-1/04-house-and-pool.webp',
     description: L('A brand-new 2,200-square-foot home near a world-class wave, designed with fully independent upstairs and downstairs living areas.', 'Casa nueva de 2,200 pies cuadrados cerca de una ola de clase mundial, diseñada con áreas independientes en la planta alta y la planta baja.'),
-    highlights: ES_MODE ? ['2,200 pies²', '3 recámaras / 2 baños', '2 cocinas', 'Niveles superior e inferior independientes', 'Alberca privada'] : ['2,200 ft²', '3 bedrooms / 2 bathrooms', '2 kitchens', 'Independent upper + lower levels', 'Private pool'],
+    highlights: ES_MODE ? ['2,200 pies²', '3 recámaras / 2 baños', '2 cocinas', 'Aire acondicionado en toda la casa', 'Niveles superior e inferior independientes', 'Alberca privada'] : ['2,200 ft²', '3 bedrooms / 2 bathrooms', '2 kitchens', 'Air conditioning throughout', 'Independent upper + lower levels', 'Private pool'],
     status: L('For Sale', 'En venta'),
     source: 'listings/rpa-1.html',
     gallery: [
@@ -22,6 +22,7 @@ window.addEventListener('DOMContentLoaded', () => {
       'assets/listings/rpa-1/08-downstairs-kitchen.webp',
       'assets/listings/rpa-1/09-downstairs-bathroom.webp',
       'assets/listings/rpa-1/10-upstairs-kitchen-living.webp',
+      'assets/listings/rpa-1/17-full-kitchen.webp',
       'assets/listings/rpa-1/11-upstairs-living.webp',
       'assets/listings/rpa-1/12-upstairs-bedroom.webp',
       'assets/listings/rpa-1/13-upstairs-bathroom.webp',
