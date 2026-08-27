@@ -7,8 +7,8 @@ window.addEventListener('DOMContentLoaded', () => {
     title: L('Brand-New Independent Two-Level Home', 'Casa nueva de dos niveles independientes'),
     price: '$650,000 USD',
     image: 'assets/listings/rpa-1/04-house-and-pool.webp',
-    description: L('A brand-new 2,200-square-foot home near a world-class wave, designed with fully independent upstairs and downstairs living areas.', 'Casa nueva de 2,200 pies cuadrados cerca de una ola de clase mundial, diseñada con áreas independientes en la planta alta y la planta baja.'),
-    highlights: ES_MODE ? ['2,200 pies²', '3 recámaras / 2 baños', '2 cocinas', 'Aire acondicionado en toda la casa', 'Niveles superior e inferior independientes', 'Alberca privada'] : ['2,200 ft²', '3 bedrooms / 2 bathrooms', '2 kitchens', 'Air conditioning throughout', 'Independent upper + lower levels', 'Private pool'],
+    description: L('A brand-new home near a world-class wave with 2,550 square feet of interior living space, plus a 760-square-foot rooftop pergola and a 360-square-foot garage.', 'Casa nueva cerca de una ola de clase mundial con 2,550 pies cuadrados de espacio interior, más una pérgola de 760 pies cuadrados en la azotea y un garaje de 360 pies cuadrados.'),
+    highlights: ES_MODE ? ['2,550 pies² interiores', 'Pérgola de 760 pies²', 'Garaje de 360 pies²', '3,670 pies² cubiertos en total', '3 recámaras / 2 baños', '2 cocinas', 'Aire acondicionado en toda la casa', 'Niveles superior e inferior independientes', 'Alberca privada'] : ['2,550 ft² interior', '760 ft² rooftop pergola', '360 ft² garage', '3,670 ft² total covered space', '3 bedrooms / 2 bathrooms', '2 kitchens', 'Air conditioning throughout', 'Independent upper + lower levels', 'Private pool'],
     status: L('For Sale', 'En venta'),
     source: 'listings/rpa-1.html',
     gallery: [
