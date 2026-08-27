@@ -64,4 +64,5 @@ header{position:sticky;top:0;z-index:10;background:rgba(244,240,231,.96);backdro
 <script>
 const es=new URLSearchParams(location.search).get('lang')==='es';document.body.classList.toggle('es',es);document.documentElement.lang=es?'es':'en';if(es){document.title='Guía de Compra — Troncones Property';document.querySelector('.brand small').textContent='GUERRERO · MÉXICO';document.querySelector('.areaNav').textContent='Guía de Zona';document.querySelector('.buyingNav').textContent='Guía de Compra';document.querySelector('.areaNav').href='/area-guide.html?lang=es';document.querySelector('.buyingNav').href='/buying-in-mexico.html?lang=es';document.querySelector('.enChoice').classList.remove('active');document.querySelector('.esChoice').classList.add('active');}
 </script>
+  <script defer src="/_vercel/insights/script.js"></script>
 </body></html>
