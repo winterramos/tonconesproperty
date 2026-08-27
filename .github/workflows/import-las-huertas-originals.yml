@@ -1,0 +1,57 @@
+name: Import original Las Huertas photos
+
+on:
+  push:
+    paths:
+      - .github/workflows/import-las-huertas-originals.yml
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download official Las Huertas originals
+        run: |
+          set -euo pipefail
+          mkdir -p assets/las-huertas
+          curl -fL --retry 3 -o assets/las-huertas/01-bare-land.jpg "https://cdn.prod.website-files.com/664f67a50ee32b0396bf8abd/6824ff89c5b5f4ca507bae66_Placeholder%20Image-2.jpg"
+          curl -fL --retry 3 -o assets/las-huertas/02-masterplan.png "https://cdn.prod.website-files.com/664f67a50ee32b0396bf8abd/671bcc0e83717505ced0e57d_Recurso%2020-min-p-800.png"
+          curl -fL --retry 3 -o assets/las-huertas/03-aerial.webp "https://cdn.prod.website-files.com/664f67a50ee32b0396bf8abd/66abd15d19c32f3d60f2ed77_Drone%202%20x1.webp"
+          curl -fL --retry 3 -o assets/las-huertas/04-hero.jpg "https://cdn.prod.website-files.com/664f67a50ee32b0396bf8abd/68239ee8180acb882be6ed4c_location.jpg"
+          curl -fL --retry 3 -o assets/las-huertas/05-community.png "https://cdn.prod.website-files.com/664f67a50ee32b0396bf8abd/671bcc13e211d58b890a7acc_Recurso%2019-min-p-800.png"
+          curl -fL --retry 3 -o assets/las-huertas/06-community.png "https://cdn.prod.website-files.com/664f67a50ee32b0396bf8abd/671bcc1053964f4debe38066_Recurso%2013-min-p-800.png"
+          curl -fL --retry 3 -o assets/las-huertas/07-community.png "https://cdn.prod.website-files.com/664f67a50ee32b0396bf8abd/671bcc03def4932439f8462b_Recurso%2012-min.png"
+          curl -fL --retry 3 -o assets/las-huertas/08-community.png "https://cdn.prod.website-files.com/664f67a50ee32b0396bf8abd/671bcbfe9576015f87f31ebe_Recurso%209-min.png"
+          curl -fL --retry 3 -o assets/las-huertas/09-community.png "https://cdn.prod.website-files.com/664f67a50ee32b0396bf8abd/671bcbfdf5818ff88c456881_Recurso%208-min.png"
+          curl -fL --retry 3 -o assets/las-huertas/10-community.png "https://cdn.prod.website-files.com/664f67a50ee32b0396bf8abd/671bcc01803a6c98b3ace120_Recurso%2018-min-p-500.png"
+          curl -fL --retry 3 -o assets/las-huertas/11-community.png "https://cdn.prod.website-files.com/664f67a50ee32b0396bf8abd/671bcc09c17557970e097b3f_Recurso%2017-min-p-500.png"
+          curl -fL --retry 3 -o assets/las-huertas/12-community.png "https://cdn.prod.website-files.com/664f67a50ee32b0396bf8abd/671bcc0d420f63947b3eac44_Recurso%2022-min-p-500.png"
+          curl -fL --retry 3 -o assets/las-huertas/13-community.png "https://cdn.prod.website-files.com/664f67a50ee32b0396bf8abd/671bcc01dfef1417e62afec5_Recurso%2016-min-p-500.png"
+          curl -fL --retry 3 -o assets/las-huertas/14-community.png "https://cdn.prod.website-files.com/664f67a50ee32b0396bf8abd/671bcc0c803a6c98b3ace788_Recurso%2011-min-p-500.png"
+          test "$(find assets/las-huertas -type f -size +10k | wc -l)" -eq 14
+      - name: Point only LHS-1 to local original files
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("index.html")
+          s=p.read_text()
+          start=s.index('"code":"LHS-1"')
+          end=s.index('},{"code":"BTL-1"',start)
+          obj=json.loads("{"+s[start:end]+"}")
+          obj["image"]="/assets/las-huertas/04-hero.jpg"
+          obj["gallery"]=[f"/assets/las-huertas/{i:02d}-"+("bare-land.jpg" if i==1 else "masterplan.png" if i==2 else "aerial.webp" if i==3 else "hero.jpg" if i==4 else "community.png") for i in range(1,15)]
+          replacement=json.dumps(obj,separators=(",",":"),ensure_ascii=False)[1:-1]
+          p.write_text(s[:start]+replacement+s[end:])
+          PY
+      - name: Commit originals and remove one-time importer
+        run: |
+          git config user.name "Troncones Property"
+          git config user.email "actions@users.noreply.github.com"
+          git rm .github/workflows/import-las-huertas-originals.yml
+          git add index.html assets/las-huertas
+          git commit -m "Replace Las Huertas screenshots with official originals"
+          git push
