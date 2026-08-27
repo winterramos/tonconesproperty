@@ -40,5 +40,8 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('totalstat').textContent = listings.length + '+';
   renderFilters();
   render();
-  areaGrid.innerHTML = cats.slice(1).map(c => `<div class="area" onclick="setCat('${c}')"><span>${listings.filter(p => p.category === c).length} properties</span><b>${c}</b><span>Explore →</span></div>`).join('');
+  areaGrid.innerHTML = cats.slice(1).map(c => {
+    const huertas = c === 'Las Huertas · La Saladita';
+    return `<div class="area${huertas ? ' dt-photo-tile' : ''}"${huertas ? ' style="background-image:url(\'/assets/las-huertas-instagram-aerial.jpeg\')"' : ''} onclick="openCollection('${c}')"><span>${listings.filter(p => p.category === c).length} ${L('properties', 'propiedades')}</span><b>${c}</b><span>${L('Explore →', 'Explorar →')}</span></div>`;
+  }).join('');
 });
