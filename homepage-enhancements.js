@@ -94,7 +94,7 @@
       hero.style.setProperty('filter','none','important');
       hero.style.setProperty('-webkit-filter','none','important');
       hero.style.setProperty('background-position','center center','important');
-      hero.style.setProperty('background-size',innerWidth<621?'auto 82%':'cover','important');
+      hero.style.setProperty('background-size',innerWidth<621?'auto 72%':'cover','important');
       hero.style.setProperty('background-repeat','no-repeat','important');
       hero.style.setProperty('background-color','#12201b','important');
     }
