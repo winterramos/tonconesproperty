@@ -93,8 +93,8 @@
       hero.style.setProperty('background-image',`linear-gradient(180deg,rgba(9,17,15,.12),rgba(9,17,15,.64)),url("${PTB1}")`,'important');
       hero.style.setProperty('filter','none','important');
       hero.style.setProperty('-webkit-filter','none','important');
-      hero.style.setProperty('background-position','center center','important');
-      hero.style.setProperty('background-size',innerWidth<621?'auto 72%':'cover','important');
+      hero.style.setProperty('background-position',innerWidth<621?'center, center top':'center center','important');
+      hero.style.setProperty('background-size',innerWidth<621?'100% 100%, 100% auto':'cover','important');
       hero.style.setProperty('background-repeat','no-repeat','important');
       hero.style.setProperty('background-color','#12201b','important');
     }
