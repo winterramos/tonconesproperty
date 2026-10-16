@@ -5,7 +5,7 @@
   "code": "CDS-1",
   "category": "Homes",
   "area": "Troncones",
-  "title": "Casa del Sol",
+  "title": "Modern Luxury New Home",
   "price": "$850,000 USD",
   "image": "/assets/listings/casa-del-sol/hero-1.webp",
   "description": "A three-year-old, three-bedroom home in a great location in beautiful Troncones, with amazing views and a stunning infinity pool. Set into the green hillside across the coastal road from the beach, Casa del Sol brings together contemporary design and relaxed coastal living. Open-plan living and dining spaces connect to a shaded terrace and infinity pool, creating an easy flow between indoors and outdoors. Warm wood finishes, expansive glass doors, a modern kitchen and tropical landscaping complete this inviting home, with three bedrooms and two and a half bathrooms.",
