@@ -44,6 +44,6 @@ window.addEventListener('DOMContentLoaded', () => {
   render();
   areaGrid.innerHTML = cats.slice(1).map(c => {
     const huertas = c === 'Las Huertas · La Saladita';
-    return `<div class="area${huertas ? ' dt-photo-tile' : ''}"${huertas ? ' style="background-image:url(\'/assets/las-huertas/03-aerial.webp\')"' : ''} onclick="openCollection('${c}')"><span>${listings.filter(p => p.category === c).length} ${L('properties', 'propiedades')}</span><b>${c}</b><span>${L('Explore →', 'Explorar →')}</span></div>`;
+    return `<div class="area${huertas ? ' dt-photo-tile' : ''}"${huertas ? ' style="background-image:url(\'/assets/las-huertas/03-aerial.webp\')"' : ''} onclick="openCollection('${c}')"><span>${listings.filter(p => p.category === c).length} ${L('properties', 'propiedades')}</span>${['Homes','Condos','Lots & Land','Beachfront Lots','Casas','Condominios','Lotes y terrenos','Terrenos frente al mar'].includes(c)?'<strong class="tronconesLabel" style="display:block;font-family:Georgia,serif;font-size:clamp(20px,2.2vw,30px);font-weight:400">Troncones</strong>':''}<b>${c}</b><span>${L('Explore →', 'Explorar →')}</span></div>`;
   }).join('');
 });
