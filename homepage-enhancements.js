@@ -47,6 +47,7 @@
     });
   }
   function showFullGallery(code){
+    if(code.toUpperCase()==='GHT-1')return;
     const images=window.DT_GALLERIES&&window.DT_GALLERIES[code.toLowerCase()];
     if(!images||!images.length)return;
     const gallery=document.querySelector('#detailContent .gallery');
@@ -62,7 +63,7 @@
     if(!window.DT_GALLERIES)return;
     document.querySelectorAll('.card').forEach(card=>{
       const code=(card.querySelector('.sub')?.textContent||'').match(/([A-Z]{3}-[^ ·]+)/)?.[1];
-      const image=code&&window.DT_GALLERIES[code.toLowerCase()]?.[0];
+      const image=code==='GHT-1'?'/assets/listings/ght-1/57.webp':code&&window.DT_GALLERIES[code.toLowerCase()]?.[0];
       const target=card.querySelector('.pic img');
       if(image&&target)target.src=image;
     });
