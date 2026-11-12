@@ -6,15 +6,20 @@
     category: L('Condos', 'Condominios'),
     area: 'Punta Majahua',
     title: L('Oceanfront Condo with Plunge Pool', 'Condominio frente al mar con alberca'),
-    price: L('Price upon request', 'Precio a consultar'),
+    price: '$425,000 USD',
     image: photos[0],
     gallery: photos,
+    gallerySections: [
+      { title: 'Punta Majahua development aerial', titleEs: 'Vista aérea del desarrollo Punta Majahua', images: ['https://images.squarespace-cdn.com/content/v1/576c31d08419c2d258a3c73c/1621446964704-RXT1D4CYVIJJN3X4OG17/PUNTA%2BMAJAHUA_ZAR_MEDIA-23%2B%281%29.JPG?format=1500w'] },
+      { title: 'Condo walkthrough', titleEs: 'Recorrido del condominio', images: photos }
+    ],
     description: L(
       'A ground-floor condo in Punta Majahua, Guerrero. Folding glass doors connect the living area and kitchen to a shaded terrace with a plunge pool and built-in grill. From the terrace, look across the garden to the Pacific.',
       'Condominio en planta baja en Punta Majahua, Guerrero. Las puertas plegables de vidrio conectan la sala y la cocina con una terraza techada con alberca y asador integrado. Desde la terraza se aprecia el Pacífico más allá del jardín.'
     ),
     highlights: [
       L('Ground floor', 'Planta baja'),
+      L('Garage included', 'Garaje incluido'),
       L('Ocean views', 'Vista al mar'),
       L('Plunge pool', 'Alberca'),
       L('Terrace with built-in grill', 'Terraza con asador integrado')
