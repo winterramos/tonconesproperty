@@ -118,7 +118,7 @@
   },true);
   document.addEventListener('click',function(event){
     const card=event.target.closest&&event.target.closest('.card');
-    if(!card||typeof window.openDetail!=='function')return;
+    if(!card||card.hasAttribute('data-listing-page')||typeof window.openDetail!=='function')return;
     const match=(card.querySelector('.sub')?.textContent||'').match(/([A-Z]{3}-[^ ·]+)/);
     if(!match)return;
     event.preventDefault();
@@ -130,7 +130,7 @@
   document.addEventListener('keydown',function(event){
     if(event.key!=='Enter')return;
     const card=event.target.closest&&event.target.closest('.card');
-    if(card)card.click();
+    if(card&&!card.hasAttribute('data-listing-page'))card.click();
   },true);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',protectHomepage,{once:true});else protectHomepage();
   loadGalleryData();
